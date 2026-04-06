@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <meta name="theme-color" content="#080f1a"/>
+  <title>HRMIS — Enterprise Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+/* ═══════════════════════════════════════════
+   HRMIS MASTER — Design System
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#080f1a;--base:#0d1629;--surface:#111e35;
+  --elevated:#162241;--card:rgba(17,30,53,0.9);
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.1);--cyan-glow:rgba(0,212,255,0.22);
+  --indigo:#4f7dff;--indigo-dim:rgba(79,125,255,0.1);
+  --emerald:#00e5a0;--emerald-dim:rgba(0,229,160,0.1);
+  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.1);
+  --rose:#ff4d6d;--rose-dim:rgba(255,77,109,0.1);
+  --violet:#a855f7;--violet-dim:rgba(168,85,247,0.1);
+  --gold:#f5c518;--gold-dim:rgba(245,197,24,0.1);
+  --text:#e8f0fe;--text2:#7a9bc8;--text3:#3d5a8a;
+  --border:rgba(79,125,255,0.1);--border2:rgba(0,212,255,0.2);
+  --r-xs:6px;--r-sm:10px;--r-md:16px;--r-lg:22px;
+  --shadow:0 8px 32px rgba(0,0,0,0.45);
+  --tx:all 0.22s cubic-bezier(0.4,0,0.2,1);
+  --sidebar-w:252px;--topbar-h:60px;--bottom-h:66px;
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--void);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:flex}
+
+/* ══════════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════════ */
+#screen-login{
+  height:100vh;align-items:center;justify-content:center;
+  padding:20px;position:relative;overflow:hidden;
+}
+.login-bg{position:absolute;inset:0;z-index:0}
+.login-bg::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%,rgba(0,212,255,0.06),transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 80%,rgba(79,125,255,0.08),transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 30%,rgba(168,85,247,0.05),transparent 50%);
+}
+.login-bg-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,212,255,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,0.02) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+.login-orb{position:absolute;border-radius:50%;filter:blur(90px);animation:orbFloat 15s ease-in-out infinite alternate}
+.login-orb.a{width:500px;height:500px;background:radial-gradient(circle,rgba(0,212,255,0.12),transparent);top:-150px;left:-100px;animation-duration:18s}
+.login-orb.b{width:400px;height:400px;background:radial-gradient(circle,rgba(79,125,255,0.15),transparent);bottom:-100px;right:-80px;animation-duration:12s;animation-delay:-5s}
+.login-orb.c{width:250px;height:250px;background:radial-gradient(circle,rgba(0,229,160,0.1),transparent);top:40%;left:55%;animation-duration:20s;animation-delay:-10s}
+@keyframes orbFloat{from{transform:translate(0,0) scale(1)}to{transform:translate(25px,15px) scale(1.1)}}
+
+.login-card{
+  position:relative;z-index:1;width:100%;max-width:400px;
+  background:rgba(13,22,41,0.92);border:1px solid var(--border2);
+  border-radius:var(--r-lg);padding:44px 38px;
+  backdrop-filter:blur(24px);
+  box-shadow:0 25px 80px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.04);
+  animation:cardIn .7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+.login-brand{text-align:center;margin-bottom:38px}
+.login-logo{width:62px;height:62px;margin:0 auto 16px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(79,125,255,0.25));
+  border:1px solid var(--border2);border-radius:17px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 8px 32px rgba(0,212,255,0.15);animation:logoPulse 3s ease-in-out infinite}
+@keyframes logoPulse{0%,100%{box-shadow:0 8px 32px rgba(0,212,255,0.15)}50%{box-shadow:0 8px 48px rgba(0,212,255,0.3)}}
+.login-title{font-size:21px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,var(--text),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-sub{font-size:12.5px;color:var(--text2);margin-top:5px}
+.lf-group{margin-bottom:16px}
+.lf-label{display:block;font-size:10.5px;font-weight:700;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
+.lf-wrap{position:relative}
+.lf-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:15px;color:var(--text3);pointer-events:none;transition:var(--tx)}
+.lf-wrap:focus-within .lf-icon{color:var(--cyan)}
+.lf-input{width:100%;padding:12px 13px 12px 40px;background:rgba(8,15,26,0.7);
+  border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);
+  font-size:14px;font-family:inherit;outline:none;transition:var(--tx);-webkit-appearance:none}
+.lf-input::placeholder{color:var(--text3)}
+.lf-input:focus{border-color:var(--border2);background:rgba(8,15,26,0.9);box-shadow:0 0 0 3px rgba(0,212,255,0.08)}
+.lf-pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;
+  padding:4px;line-height:1;transition:var(--tx)}
+.lf-pwd-toggle:hover{color:var(--text2)}
+.lf-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.lf-remember{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text2);cursor:pointer}
+.lf-remember input{accent-color:var(--cyan);width:14px;height:14px}
+.lf-forgot{font-size:12.5px;color:var(--cyan);text-decoration:none;font-weight:600}
+.lf-forgot:hover{text-decoration:underline}
+.lf-field-err{font-size:11.5px;color:var(--rose);margin-top:5px;display:none;align-items:center;gap:4px}
+.lf-field-err.show{display:flex}
+.btn-signin{width:100%;padding:13px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.18),rgba(79,125,255,0.28));
+  border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text);
+  font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;
+  transition:var(--tx);display:flex;align-items:center;justify-content:center;gap:9px;
+  box-shadow:0 4px 24px rgba(0,212,255,0.15)}
+.btn-signin:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,212,255,0.25)}
+.btn-signin:disabled{opacity:.65;cursor:not-allowed;transform:none}
+.btn-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.loading .btn-spinner{display:block}
+.loading .btn-signin-txt::after{content:'Signing in...'}
+.btn-signin-txt::after{content:'Sign In →'}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login-footer{margin-top:26px;text-align:center;font-size:11px;color:var(--text3);
+  border-top:1px solid var(--border);padding-top:18px;line-height:1.7}
+.creds-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:50;
+  background:rgba(13,22,41,0.96);border:1px solid var(--border);border-radius:14px;
+  padding:9px 16px;display:flex;gap:10px;align-items:center;
+  backdrop-filter:blur(12px);font-size:11.5px;white-space:nowrap;box-shadow:var(--shadow)}
+.creds-bar span.lbl{color:var(--text3)}
+.cred-btn{display:flex;align-items:center;gap:6px;
+  background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);
+  border-radius:8px;padding:4px 10px;cursor:pointer;transition:var(--tx)}
+.cred-btn:hover{background:rgba(0,212,255,0.12)}
+.cred-btn .cr{font-size:9px;font-weight:800;color:var(--cyan);text-transform:uppercase;letter-spacing:.6px}
+.cred-btn .ci{color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px}
+.mock-badge{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:200;
+  background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.3);
+  color:var(--amber);font-size:10.5px;font-weight:700;padding:4px 14px;
+  border-radius:20px;backdrop-filter:blur(8px);letter-spacing:.5px;white-space:nowrap}
+
+/* ══════════════════════════════════════════
+   DASHBOARD SCREEN
+══════════════════════════════════════════ */
+#screen-dashboard{height:100vh;flex-direction:row;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;background:var(--base);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  overflow:hidden;position:relative;z-index:100;transition:var(--tx);
+}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.4}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;flex-shrink:0}
+.sb-logo-box{width:38px;height:38px;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(79,125,255,0.25));
+  border:1px solid var(--border2);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.sb-brand-name{font-size:14px;font-weight:800;letter-spacing:-.3px;
+  background:linear-gradient(135deg,var(--text),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sb-brand-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.sb-user{margin:12px 12px 4px;padding:10px 12px;background:var(--elevated);
+  border:1px solid var(--border);border-radius:var(--r-sm);
+  display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sb-avatar{width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:#fff;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace}
+.sb-uname{font-size:12.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-urole{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--cyan);margin-top:1px}
+.sb-status-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);
+  flex-shrink:0;box-shadow:0 0 6px rgba(0,229,160,.5);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sb-sec-lbl{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;
+  color:var(--text3);padding:12px 18px 5px}
+.sb-item{display:flex;align-items:center;gap:11px;padding:9px 13px 9px 16px;
+  margin:1px 7px;border-radius:var(--r-sm);cursor:pointer;transition:var(--tx);
+  border:1px solid transparent;font-size:12.5px;color:var(--text2);font-weight:500;position:relative}
+.sb-item:hover{background:var(--elevated);border-color:var(--border)}
+.sb-item.active{background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(79,125,255,0.07));
+  border-color:var(--border2);color:var(--text)}
+.sb-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;
+  width:3px;border-radius:0 3px 3px 0;background:linear-gradient(to bottom,var(--cyan),var(--indigo))}
+.sb-ico{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sb-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:20px;
+  background:var(--rose);color:#fff;margin-left:auto;flex-shrink:0}
+.sb-badge.g{background:var(--emerald);color:#000}
+.sb-foot{padding:12px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-clock{font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--cyan);text-align:center;letter-spacing:.5px}
+.sb-date{font-size:10.5px;color:var(--text3);text-align:center;margin-top:2px}
+.btn-logout-sb{width:100%;margin-top:10px;padding:8px;
+  background:rgba(255,77,109,0.07);border:1px solid rgba(255,77,109,0.2);
+  border-radius:var(--r-xs);color:var(--rose);font-size:12px;font-weight:600;
+  font-family:inherit;cursor:pointer;transition:var(--tx);
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-logout-sb:hover{background:rgba(255,77,109,0.14)}
+
+/* ── Main Area ── */
+.main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:var(--topbar-h);flex-shrink:0;
+  background:rgba(13,22,41,0.88);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(10px);display:flex;align-items:center;
+  justify-content:space-between;padding:0 22px;gap:14px;z-index:50}
+.tp-title{font-size:14px;font-weight:700;color:var(--text)}
+.tp-bread{font-size:11px;color:var(--text3);margin-top:2px}
+.tp-right{display:flex;align-items:center;gap:8px}
+.tp-search{display:flex;align-items:center;gap:8px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 12px}
+.tp-search input{background:none;border:none;outline:none;color:var(--text);
+  font-size:12.5px;font-family:inherit;width:170px}
+.tp-search input::placeholder{color:var(--text3)}
+.tp-ico{width:34px;height:34px;border-radius:var(--r-xs);background:var(--surface);
+  border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:var(--tx);font-size:14px;position:relative}
+.tp-ico:hover{border-color:var(--border2);color:var(--cyan)}
+.tp-notif-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;
+  background:var(--rose);border:1.5px solid var(--void)}
+.btn-hamburger{display:none;background:none;border:1px solid var(--border);
+  border-radius:var(--r-xs);padding:6px 9px;color:var(--text2);cursor:pointer;
+  font-size:15px;transition:var(--tx)}
+.btn-hamburger:hover{border-color:var(--border2);color:var(--cyan)}
+.role-switcher{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:3px}
+.role-btn{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;
+  cursor:pointer;border:none;font-family:inherit;transition:var(--tx);
+  background:none;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.role-btn.active{background:var(--cyan);color:var(--void)}
+
+/* Content pane */
+.content-pane{flex:1;overflow-y:auto;overflow-x:hidden;padding:22px;scroll-behavior:smooth}
+.module-panel{display:none;animation:panelIn .3s ease both}
+.module-panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Bottom nav (mobile) */
+.bottom-nav{display:none;height:var(--bottom-h);background:rgba(13,22,41,0.97);
+  border-top:1px solid var(--border);backdrop-filter:blur(16px);
+  padding:0 4px;align-items:center;justify-content:space-around;flex-shrink:0;z-index:100}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;transition:var(--tx);flex:1;
+  max-width:70px;position:relative}
+.bn-item.active{background:rgba(0,212,255,0.06)}
+.bn-icon{font-size:20px;transition:var(--tx)}
+.bn-item.active .bn-icon{filter:drop-shadow(0 0 5px var(--cyan));transform:scale(1.1)}
+.bn-label{font-size:9.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.bn-item.active .bn-label{color:var(--cyan)}
+.bn-badge-dot{position:absolute;top:4px;right:8px;width:16px;height:16px;
+  border-radius:50%;background:var(--rose);color:#fff;font-size:9px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;border:1.5px solid var(--void)}
+.sb-overlay{display:none;position:fixed;inset:0;z-index:99;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
+
+/* ══════════════════════════════════════════
+   DASHBOARD ANALYTICS MODULE
+══════════════════════════════════════════ */
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:22px;gap:14px;flex-wrap:wrap}
+.ph-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:var(--cyan)}
+.ph-title{font-size:21px;font-weight:800;letter-spacing:-.5px;color:var(--text)}
+.ph-sub{font-size:12.5px;color:var(--text2);margin-top:3px}
+.ph-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn-sm{padding:8px 16px;border-radius:var(--r-xs);font-size:12px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:var(--tx);border:none;
+  display:flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-sm.outline{background:var(--elevated);border:1px solid var(--border);color:var(--text2)}
+.btn-sm.outline:hover{border-color:var(--border2);color:var(--text)}
+.btn-sm.primary{background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(79,125,255,0.18));
+  border:1px solid var(--border2);color:var(--cyan)}
+.btn-sm.primary:hover{background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(79,125,255,0.28))}
+.date-pill{display:flex;align-items:center;gap:6px;background:var(--elevated);
+  border:1px solid var(--border);border-radius:var(--r-xs);padding:8px 12px;
+  font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:20px;position:relative;overflow:hidden;transition:var(--tx);cursor:default}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r-md) var(--r-md) 0 0}
+.kpi-card.cyan::before{background:linear-gradient(90deg,var(--cyan),transparent)}
+.kpi-card.emerald::before{background:linear-gradient(90deg,var(--emerald),transparent)}
+.kpi-card.amber::before{background:linear-gradient(90deg,var(--amber),transparent)}
+.kpi-card.rose::before{background:linear-gradient(90deg,var(--rose),transparent)}
+.kpi-card.violet::before{background:linear-gradient(90deg,var(--violet),transparent)}
+.kpi-card.indigo::before{background:linear-gradient(90deg,var(--indigo),transparent)}
+.kpi-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.kpi-ico{width:40px;height:40px;border-radius:var(--r-xs);
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.kpi-card.cyan .kpi-ico{background:var(--cyan-dim)}
+.kpi-card.emerald .kpi-ico{background:var(--emerald-dim)}
+.kpi-card.amber .kpi-ico{background:var(--amber-dim)}
+.kpi-card.rose .kpi-ico{background:var(--rose-dim)}
+.kpi-card.violet .kpi-ico{background:var(--violet-dim)}
+.kpi-card.indigo .kpi-ico{background:var(--indigo-dim)}
+.kpi-trend{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;
+  display:flex;align-items:center;gap:3px}
+.kpi-trend.up{background:rgba(0,229,160,0.12);color:var(--emerald)}
+.kpi-trend.down{background:rgba(255,77,109,0.12);color:var(--rose)}
+.kpi-trend.flat{background:rgba(122,155,200,0.12);color:var(--text2)}
+.kpi-val{font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text);
+  font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:4px}
+.kpi-lbl{font-size:12px;color:var(--text2);font-weight:500}
+.kpi-sub{font-size:10.5px;color:var(--text3);margin-top:8px;
+  padding-top:8px;border-top:1px solid var(--border)}
+
+/* Charts */
+.charts-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:20px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:22px}
+.chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.chart-title{font-size:13px;font-weight:700;color:var(--text)}
+.chart-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.chart-wrap{position:relative}
+.chart-tabs{display:flex;gap:3px}
+.chart-tab{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;
+  cursor:pointer;border:none;font-family:inherit;background:none;color:var(--text3);transition:var(--tx)}
+.chart-tab.active{background:var(--elevated);color:var(--cyan);border:1px solid var(--border)}
+
+/* Bottom analytics grid */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.dept-list{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.dept-row{display:flex;align-items:center;gap:10px}
+.dept-name{font-size:12px;color:var(--text2);width:90px;flex-shrink:0}
+.dept-bar-wrap{flex:1;height:8px;background:var(--elevated);border-radius:4px;overflow:hidden}
+.dept-bar{height:100%;border-radius:4px;transition:width 1s cubic-bezier(0.4,0,0.2,1)}
+.dept-amt{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;
+  width:70px;text-align:right;flex-shrink:0}
+.activity-list{display:flex;flex-direction:column;gap:0}
+.act-item{display:flex;align-items:center;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-avatar{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.act-name{font-size:12.5px;font-weight:600;color:var(--text)}
+.act-desc{font-size:11px;color:var(--text3);margin-top:1px}
+.act-time{font-size:10.5px;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.act-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.act-badge.in{background:var(--emerald-dim);color:var(--emerald)}
+.act-badge.out{background:var(--rose-dim);color:var(--rose)}
+.act-badge.late{background:var(--amber-dim);color:var(--amber)}
+.act-badge.leave{background:var(--violet-dim);color:var(--violet)}
+
+/* Quick stats */
+.quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.qs-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:14px 16px;display:flex;align-items:center;gap:12px;transition:var(--tx)}
+.qs-card:hover{border-color:var(--border2)}
+.qs-ico{font-size:22px}
+.qs-val{font-size:18px;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace}
+.qs-lbl{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* Placeholder modules */
+.placeholder-module{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:60vh;gap:14px;text-align:center;padding:40px}
+.pm-ico{font-size:52px;opacity:.5;margin-bottom:6px}
+.pm-title{font-size:18px;font-weight:800;color:var(--text)}
+.pm-sub{font-size:13.5px;color:var(--text2);max-width:340px;line-height:1.6}
+.pm-tag{font-size:11px;font-weight:700;padding:5px 16px;border-radius:20px;
+  background:rgba(0,212,255,0.07);border:1px solid var(--border2);color:var(--cyan);margin-top:4px}
+
+/* Employee portal home */
+.emp-portal-home{display:flex;flex-direction:column;gap:14px}
+.emp-welcome{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(79,125,255,0.08));
+  border:1px solid var(--border2);border-radius:var(--r-md);padding:24px;
+  display:flex;align-items:center;gap:20px}
+.emp-welcome-av{width:56px;height:56px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#fff;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace}
+.emp-welcome-hi{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--cyan)}
+.emp-welcome-name{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.emp-welcome-role{font-size:12.5px;color:var(--text2);margin-top:2px}
+.emp-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.emp-quick-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:20px;cursor:pointer;transition:var(--tx);position:relative;overflow:hidden}
+.emp-quick-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.emp-quick-card::after{content:'→';position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:16px;transition:var(--tx)}
+.emp-quick-card:hover::after{right:12px;color:var(--cyan)}
+.eqc-ico{font-size:24px;margin-bottom:8px}
+.eqc-title{font-size:13.5px;font-weight:700;color:var(--text)}
+.eqc-sub{font-size:11.5px;color:var(--text3);margin-top:2px}
+
+/* Toast */
+#toast-container{position:fixed;top:14px;right:14px;z-index:9999;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:300px}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r-sm);
+  font-size:13px;font-weight:500;pointer-events:all;backdrop-filter:blur(12px);
+  animation:tIn .3s cubic-bezier(0.34,1.56,0.64,1) both;box-shadow:var(--shadow)}
+.toast.s{background:rgba(0,229,160,0.12);border:1px solid rgba(0,229,160,0.3);color:#4aeab0}
+.toast.e{background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.3);color:#ff7a91}
+.toast.i{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);color:#7ad4ff}
+.toast.w{background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.25);color:#ffd060}
+@keyframes tIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tOut{to{opacity:0;transform:translateX(14px);max-height:0;padding:0;margin:0}}
+.toast.out{animation:tOut .25s ease forwards}
+
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%);
+    transition:transform .3s cubic-bezier(0.4,0,0.2,1);box-shadow:var(--shadow)}
+  .sidebar.open{transform:translateX(0)}
+  .sb-overlay.show{display:block}
+  .btn-hamburger{display:flex}
+  .tp-search{display:none}
+  .bottom-nav{display:flex}
+  .content-pane{padding:16px;padding-bottom:calc(var(--bottom-h) + 16px)}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-grid{grid-template-columns:1fr}
+  .bottom-grid{grid-template-columns:1fr}
+  .role-switcher{display:none}
+  .ph-actions{display:none}
+}
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .quick-stats{grid-template-columns:1fr}
+  .emp-quick-grid{grid-template-columns:1fr}
+  .content-pane{padding:12px;padding-bottom:calc(var(--bottom-h) + 12px)}
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)}
+}
+  </style>
+</head>
+<body>
+
+<div id="toast-container" role="alert" aria-live="polite"></div>
+<div class="mock-badge" id="mock-badge">🧪 PREVIEW MODE — Mock Data Active</div>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- ════════ LOGIN SCREEN ════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-bg">
+    <div class="login-bg-grid"></div>
+    <div class="login-orb a"></div>
+    <div class="login-orb b"></div>
+    <div class="login-orb c"></div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-logo">🏢</div>
+      <h1 class="login-title">Enterprise HRMIS</h1>
+      <p class="login-sub">Human Resource Management & Information System</p>
+    </div>
+    <form id="login-form" novalidate autocomplete="off">
+      <div class="lf-group">
+        <label class="lf-label" for="i-empid">Employee ID</label>
+        <div class="lf-wrap">
+          <input type="text" id="i-empid" class="lf-input" placeholder="e.g. ADMIN001" required/>
+          <span class="lf-icon">👤</span>
+        </div>
+        <p class="lf-field-err" id="e-empid">⚠️ Employee ID is required.</p>
+      </div>
+      <div class="lf-group">
+        <label class="lf-label" for="i-pwd">Password</label>
+        <div class="lf-wrap">
+          <input type="password" id="i-pwd" class="lf-input" style="padding-right:40px" placeholder="Enter your password" required/>
+          <span class="lf-icon">🔒</span>
+          <button type="button" class="lf-pwd-toggle" id="pwd-tog">👁️</button>
+        </div>
+        <p class="lf-field-err" id="e-pwd">⚠️ Password is required.</p>
+      </div>
+      <div class="lf-meta">
+        <label class="lf-remember"><input type="checkbox" id="chk-rem"/> Remember me</label>
+        <a href="#" class="lf-forgot" id="forgot">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn-signin" id="btn-signin">
+        <span class="btn-spinner"></span>
+        <span class="btn-signin-txt"></span>
+      </button>
+    </form>
+    <div class="login-footer">🔐 Secured by Enterprise HRMIS &nbsp;·&nbsp; © 2025 All rights reserved</div>
+  </div>
+
+  <!-- Credentials hint bar -->
+  <div class="creds-bar">
+    <span class="lbl">Try:</span>
+    <div class="cred-btn" onclick="fillCreds('ADMIN001','admin123')">
+      <span class="cr">Admin</span><span class="ci">ADMIN001 / admin123</span>
+    </div>
+    <span style="color:var(--text3);opacity:.4">·</span>
+    <div class="cred-btn" onclick="fillCreds('EMP001','emp123')">
+      <span class="cr">Employee</span><span class="ci">EMP001 / emp123</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ DASHBOARD SCREEN ════════ -->
+<div id="screen-dashboard" class="screen">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo-box">🏢</div>
+      <div>
+        <div class="sb-brand-name">HRMIS</div>
+        <div class="sb-brand-sub">Enterprise Portal</div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">RA</div>
+      <div style="flex:1;overflow:hidden">
+        <div class="sb-uname" id="sb-uname">Rahim Ahmed</div>
+        <div class="sb-urole" id="sb-urole">Administrator</div>
+      </div>
+      <div class="sb-status-dot"></div>
+    </div>
+
+    <!-- Admin Nav -->
+    <nav class="sb-nav" id="admin-nav">
+      <div class="sb-sec-lbl">Core</div>
+      <div class="sb-item active" onclick="switchModule('dashboard',this)"><span class="sb-ico">📊</span>Dashboard</div>
+      <div class="sb-item" onclick="switchModule('employees',this)"><span class="sb-ico">👥</span>Employees<span class="sb-badge g" id="emp-count-badge">—</span></div>
+      <div class="sb-sec-lbl">Operations</div>
+      <div class="sb-item" onclick="switchModule('attendance',this)"><span class="sb-ico">📍</span>Attendance & Leaves<span class="sb-badge">3</span></div>
+      <div class="sb-item" onclick="switchModule('payroll',this)"><span class="sb-ico">💰</span>Payroll & Finance</div>
+      <div class="sb-item" onclick="switchModule('loans',this)"><span class="sb-ico">🏦</span>Loans & Advances</div>
+      <div class="sb-sec-lbl">Growth</div>
+      <div class="sb-item" onclick="switchModule('performance',this)"><span class="sb-ico">⭐</span>Performance & KPI</div>
+      <div class="sb-item" onclick="switchModule('tasks',this)"><span class="sb-ico">✅</span>Daily Tasks</div>
+      <div class="sb-item" onclick="switchModule('training',this)"><span class="sb-ico">📚</span>Training & SOPs</div>
+      <div class="sb-sec-lbl">Engagement</div>
+      <div class="sb-item" onclick="switchModule('notices',this)"><span class="sb-ico">📢</span>Notice Board</div>
+      <div class="sb-item" onclick="switchModule('helpdesk',this)"><span class="sb-ico">🎫</span>Helpdesk<span class="sb-badge">5</span></div>
+      <div class="sb-item" onclick="switchModule('offboarding',this)"><span class="sb-ico">🚪</span>Exit & Clearance</div>
+    </nav>
+
+    <!-- Employee Nav -->
+    <nav class="sb-nav" id="emp-nav" style="display:none">
+      <div class="sb-sec-lbl">My Space</div>
+      <div class="sb-item active" onclick="switchModule('emp-home',this)"><span class="sb-ico">🏠</span>Home</div>
+      <div class="sb-item" onclick="switchModule('emp-attendance',this)"><span class="sb-ico">📍</span>My Attendance</div>
+      <div class="sb-item" onclick="switchModule('emp-leaves',this)"><span class="sb-ico">🌴</span>Apply Leave</div>
+      <div class="sb-sec-lbl">Finance</div>
+      <div class="sb-item" onclick="switchModule('emp-payslip',this)"><span class="sb-ico">💳</span>My Payslips</div>
+      <div class="sb-item" onclick="switchModule('emp-loan',this)"><span class="sb-ico">🏦</span>Loan / Advance</div>
+      <div class="sb-sec-lbl">Workspace</div>
+      <div class="sb-item" onclick="switchModule('emp-tasks',this)"><span class="sb-ico">✅</span>My Tasks</div>
+      <div class="sb-item" onclick="switchModule('emp-notices',this)"><span class="sb-ico">📢</span>Notices</div>
+      <div class="sb-item" onclick="switchModule('emp-helpdesk',this)"><span class="sb-ico">🎫</span>Helpdesk</div>
+    </nav>
+
+    <div class="sb-foot">
+      <div class="sb-clock" id="sb-clock">--:--:--</div>
+      <div class="sb-date" id="sb-date">---</div>
+      <button class="btn-logout-sb" onclick="logout()">⬅️ Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAP -->
+  <div class="main-wrap">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-hamburger" onclick="toggleSidebar()">☰</button>
+        <div>
+          <div class="tp-title" id="tp-title">Analytics Dashboard</div>
+          <div class="tp-bread" id="tp-bread">HRMIS › Admin › Dashboard</div>
+        </div>
+      </div>
+      <div class="tp-right">
+        <div class="tp-search">
+          <span style="color:var(--text3)">🔍</span>
+          <input type="text" placeholder="Search employees..."/>
+        </div>
+        <div class="tp-ico">🔔<span class="tp-notif-dot"></span></div>
+        <div class="tp-ico">⚙️</div>
+        <div class="role-switcher" id="role-switcher">
+          <button class="role-btn active" id="rbtn-admin" onclick="switchRole('Admin')">Admin</button>
+          <button class="role-btn" id="rbtn-emp" onclick="switchRole('Employee')">Employee</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Pane -->
+    <div class="content-pane" id="content-pane">
+
+      <!-- ── MODULE: ADMIN DASHBOARD ── -->
+      <div class="module-panel active" id="mod-dashboard">
+        <div class="page-hd">
+          <div>
+            <div class="ph-tag">Good Morning 👋</div>
+            <div class="ph-title">Analytics Overview</div>
+            <div class="ph-sub">Live workforce intelligence · <span id="org-name">Vault Enterprise</span></div>
+          </div>
+          <div class="ph-actions">
+            <div class="date-pill">📅 <span id="today-date">--</span></div>
+            <button class="btn-sm outline">⬇ Export Report</button>
+            <button class="btn-sm primary" onclick="switchModule('employees',document.querySelector('#admin-nav .sb-item:nth-child(2)'))">+ Add Employee</button>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card cyan">
+            <div class="kpi-top"><div class="kpi-ico">👥</div><div class="kpi-trend up">↑ 3.2%</div></div>
+            <div class="kpi-val" id="k-headcount">48</div>
+            <div class="kpi-lbl">Total Headcount</div>
+            <div class="kpi-sub">+2 joined this month · 1 exited</div>
+          </div>
+          <div class="kpi-card emerald">
+            <div class="kpi-top"><div class="kpi-ico">✅</div><div class="kpi-trend up">↑ 1.8%</div></div>
+            <div class="kpi-val" id="k-att">91%</div>
+            <div class="kpi-lbl">Attendance Rate</div>
+            <div class="kpi-sub">Today: 44 present · 4 absent</div>
+          </div>
+          <div class="kpi-card amber">
+            <div class="kpi-top"><div class="kpi-ico">⚠️</div><div class="kpi-trend down">↑ 2 more</div></div>
+            <div class="kpi-val" id="k-late">7</div>
+            <div class="kpi-lbl">Late Arrivals Today</div>
+            <div class="kpi-sub">Threshold: after 09:15 AM</div>
+          </div>
+          <div class="kpi-card rose">
+            <div class="kpi-top"><div class="kpi-ico">🌴</div><div class="kpi-trend flat">→ Same</div></div>
+            <div class="kpi-val" id="k-leaves">5</div>
+            <div class="kpi-lbl">Pending Leaves</div>
+            <div class="kpi-sub">3 casual · 2 medical</div>
+          </div>
+          <div class="kpi-card violet">
+            <div class="kpi-top"><div class="kpi-ico">💰</div><div class="kpi-trend up">↑ 5.1%</div></div>
+            <div class="kpi-val" style="font-size:22px">৳12.4L</div>
+            <div class="kpi-lbl">Monthly Payroll</div>
+            <div class="kpi-sub">Next run: 30th · 3 pending</div>
+          </div>
+          <div class="kpi-card indigo">
+            <div class="kpi-top"><div class="kpi-ico">🎫</div><div class="kpi-trend down">↑ 3 new</div></div>
+            <div class="kpi-val" id="k-tickets">5</div>
+            <div class="kpi-lbl">Open Helpdesk Tickets</div>
+            <div class="kpi-sub">Avg resolve: 1.2 days</div>
+          </div>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="quick-stats">
+          <div class="qs-card"><div class="qs-ico">📈</div><div><div class="qs-val">4.2/5</div><div class="qs-lbl">Avg Performance</div></div></div>
+          <div class="qs-card"><div class="qs-ico">🏦</div><div><div class="qs-val">৳3.8L</div><div class="qs-lbl">Active Loan Portfolio</div></div></div>
+          <div class="qs-card"><div class="qs-ico">🚪</div><div><div class="qs-val">2</div><div class="qs-lbl">Pending Clearances</div></div></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-hd">
+              <div><div class="chart-title">Attendance Trend</div><div class="chart-sub">Last 7 days · Present vs Absent vs Late</div></div>
+              <div class="chart-tabs">
+                <button class="chart-tab active" onclick="switchChartTab(this,'7d')">7D</button>
+                <button class="chart-tab" onclick="switchChartTab(this,'30d')">30D</button>
+                <button class="chart-tab" onclick="switchChartTab(this,'3m')">3M</button>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Present</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Absent</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Late</div>
+            </div>
+            <div class="chart-wrap" style="height:220px"><canvas id="chart-att"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-hd"><div><div class="chart-title">Headcount by Department</div><div class="chart-sub">48 employees · 6 departments</div></div></div>
+            <div class="chart-wrap" style="height:220px"><canvas id="chart-hc"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Bottom grid -->
+        <div class="bottom-grid">
+          <div class="chart-card">
+            <div class="chart-hd"><div><div class="chart-title">Salary Distribution</div><div class="chart-sub">Monthly gross by department · BDT</div></div></div>
+            <div class="dept-list" id="dept-salary"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-hd">
+              <div><div class="chart-title">Live Activity Feed</div><div class="chart-sub">Today's attendance events</div></div>
+              <button class="btn-sm outline" style="font-size:10px;padding:5px 10px">View All</button>
+            </div>
+            <div class="activity-list" id="activity-feed"></div>
+          </div>
+        </div>
+
+        <!-- Payroll chart -->
+        <div class="chart-card" style="margin-bottom:20px">
+          <div class="chart-hd">
+            <div><div class="chart-title">Monthly Payroll Disbursement</div><div class="chart-sub">Last 6 months · Basic + Service Charge + Bonus (BDT)</div></div>
+            <button class="btn-sm primary" style="font-size:11px" onclick="switchModule('payroll',document.querySelector('#admin-nav .sb-item:nth-child(6)'))">Run Payroll →</button>
+          </div>
+          <div class="chart-wrap" style="height:200px"><canvas id="chart-payroll"></canvas></div>
+        </div>
+      </div>
+
+      <!-- ── PLACEHOLDER MODULES (Admin) ── -->
+      <div class="module-panel" id="mod-employees"><div class="placeholder-module"><div class="pm-ico">👥</div><div class="pm-title">Employee Management</div><div class="pm-sub">68-field onboarding wizard, Drive file uploads, bulk CSV import, full employee directory with filters.</div><div class="pm-tag">🔨 Use Step3-Employee-Management.html</div></div></div>
+      <div class="module-panel" id="mod-attendance"><div class="placeholder-module"><div class="pm-ico">📍</div><div class="pm-title">Attendance & Leaves</div><div class="pm-sub">GPS check-in/out, QR scan, auto late-mark, leave approval workflow, calendar heatmap.</div><div class="pm-tag">🔨 Use Step4-Attendance-Leaves.html</div></div></div>
+      <div class="module-panel" id="mod-payroll"><div class="placeholder-module"><div class="pm-ico">💰</div><div class="pm-title">Payroll & Finance</div><div class="pm-sub">Monthly payroll calculator, EMI deductions, PDF payslip generation.</div><div class="pm-tag">🔨 Use Step5-Payroll-Finance.html</div></div></div>
+      <div class="module-panel" id="mod-loans"><div class="placeholder-module"><div class="pm-ico">🏦</div><div class="pm-title">Loans & Advances</div><div class="pm-sub">Loan disbursement, EMI schedule, balance tracking.</div><div class="pm-tag">🔨 Included in Step5-Payroll-Finance.html</div></div></div>
+      <div class="module-panel" id="mod-performance"><div class="placeholder-module"><div class="pm-ico">⭐</div><div class="pm-title">Performance & KPI</div><div class="pm-sub">Monthly KPI reviews, performance history, promotion management.</div><div class="pm-tag">🔨 Step 6 — Coming Next</div></div></div>
+      <div class="module-panel" id="mod-tasks"><div class="placeholder-module"><div class="pm-ico">✅</div><div class="pm-title">Daily Task Manager</div><div class="pm-sub">Issue daily tasks, track completion in real-time.</div><div class="pm-tag">🔨 Step 6 — Coming Next</div></div></div>
+      <div class="module-panel" id="mod-training"><div class="placeholder-module"><div class="pm-ico">📚</div><div class="pm-title">Training & SOPs</div><div class="pm-sub">Upload SOPs, assign training, track acknowledgements.</div><div class="pm-tag">🔨 Step 6 — Coming Next</div></div></div>
+      <div class="module-panel" id="mod-notices"><div class="placeholder-module"><div class="pm-ico">📢</div><div class="pm-title">Digital Notice Board</div><div class="pm-sub">Publish notices, department announcements, pin circulars.</div><div class="pm-tag">🔨 Step 7 — Coming Next</div></div></div>
+      <div class="module-panel" id="mod-helpdesk"><div class="placeholder-module"><div class="pm-ico">🎫</div><div class="pm-title">Helpdesk Ticketing</div><div class="pm-sub">Employee issue tickets, admin reply, SLA monitoring.</div><div class="pm-tag">🔨 Step 7 — Coming Next</div></div></div>
+      <div class="module-panel" id="mod-offboarding"><div class="placeholder-module"><div class="pm-ico">🚪</div><div class="pm-title">Exit & Clearance</div><div class="pm-sub">Final checklist, LWD management, offboarding documents.</div><div class="pm-tag">🔨 Step 8 — Coming Next</div></div></div>
+
+      <!-- ── EMPLOYEE PORTAL MODULES ── -->
+      <div class="module-panel" id="mod-emp-home">
+        <div class="emp-portal-home">
+          <div class="emp-welcome">
+            <div class="emp-welcome-av" id="emp-av">KH</div>
+            <div>
+              <div class="emp-welcome-hi">👋 Welcome back</div>
+              <div class="emp-welcome-name" id="emp-wname">Karim Hossain</div>
+              <div class="emp-welcome-role" id="emp-wrole">Front Office · EMP001</div>
+            </div>
+          </div>
+          <div class="emp-quick-grid">
+            <div class="emp-quick-card" onclick="switchModule('emp-attendance',null)"><div class="eqc-ico">📍</div><div class="eqc-title">Check In / Out</div><div class="eqc-sub">GPS or QR Code attendance</div></div>
+            <div class="emp-quick-card" onclick="switchModule('emp-payslip',null)"><div class="eqc-ico">💳</div><div class="eqc-title">My Payslip</div><div class="eqc-sub">View & download salary slip</div></div>
+            <div class="emp-quick-card" onclick="switchModule('emp-leaves',null)"><div class="eqc-ico">🌴</div><div class="eqc-title">Apply Leave</div><div class="eqc-sub">Submit leave request</div></div>
+            <div class="emp-quick-card" onclick="switchModule('emp-helpdesk',null)"><div class="eqc-ico">🎫</div><div class="eqc-title">Raise a Ticket</div><div class="eqc-sub">IT, HR, Admin support</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="module-panel" id="mod-emp-attendance"><div class="placeholder-module"><div class="pm-ico">📍</div><div class="pm-title">Smart Attendance</div><div class="pm-sub">GPS check-in/out and QR scan. Use Step4-Attendance-Leaves.html for the full module.</div><div class="pm-tag">🔨 Step4-Attendance-Leaves.html</div></div></div>
+      <div class="module-panel" id="mod-emp-leaves"><div class="placeholder-module"><div class="pm-ico">🌴</div><div class="pm-title">Leave Application</div><div class="pm-sub">Submit and track leave requests.</div><div class="pm-tag">🔨 Step4-Attendance-Leaves.html</div></div></div>
+      <div class="module-panel" id="mod-emp-payslip"><div class="placeholder-module"><div class="pm-ico">💳</div><div class="pm-title">My Payslips</div><div class="pm-sub">View salary breakdown, download PDF payslip.</div><div class="pm-tag">🔨 Step5-Payroll-Finance.html</div></div></div>
+      <div class="module-panel" id="mod-emp-loan"><div class="placeholder-module"><div class="pm-ico">🏦</div><div class="pm-title">Loan & Advance</div><div class="pm-sub">Apply and track loan repayment.</div><div class="pm-tag">🔨 Step5-Payroll-Finance.html</div></div></div>
+      <div class="module-panel" id="mod-emp-tasks"><div class="placeholder-module"><div class="pm-ico">✅</div><div class="pm-title">My Daily Tasks</div><div class="pm-sub">View assigned tasks and mark complete.</div><div class="pm-tag">🔨 Step 6 — Coming Next</div></div></div>
+      <div class="module-panel" id="mod-emp-notices"><div class="placeholder-module"><div class="pm-ico">📢</div><div class="pm-title">Notice Board</div><div class="pm-sub">Company and department announcements.</div><div class="pm-tag">🔨 Step 7 — Coming Next</div></div></div>
+      <div class="module-panel" id="mod-emp-helpdesk"><div class="placeholder-module"><div class="pm-ico">🎫</div><div class="pm-title">My Helpdesk Tickets</div><div class="pm-sub">Submit issues and track resolutions.</div><div class="pm-tag">🔨 Step 7 — Coming Next</div></div></div>
+
+    </div><!-- /content-pane -->
+
+    <!-- BOTTOM NAV (mobile) -->
+    <nav class="bottom-nav" id="bottom-nav"></nav>
+  </div><!-- /main-wrap -->
+</div><!-- /screen-dashboard -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
+//  ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
+//  ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+//  ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+//  ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+//
+//  STEP 1 — আপনার GAS Web App URL এখানে বসান
+//  STEP 2 — GAS দিয়ে সব কাজ হলে MOCK_MODE = false করুন
+// ═══════════════════════════════════════════════════════════════
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbyMoQK1DmYRiBCLt6aiX9QO1gmZ3nOTosFa-dv9g0dm1PmJMQ6TH_M_dP_1tmT4Dfpn/exec'; // ← এখানে আপনার URL বসান
+const MOCK_MODE = false;                          // ← false করুন real data এর জন্য
+// ═══════════════════════════════════════════════════════════════
+
+// Mock users (MOCK_MODE = true থাকলে এগুলো কাজ করে)
+const MOCK_USERS = [
+  { EmpID:'ADMIN001', Password:'admin123', Role:'Admin',    Name:'Rahim Ahmed',   Dept:'Management' },
+  { EmpID:'EMP001',   Password:'emp123',   Role:'Employee', Name:'Karim Hossain', Dept:'Front Office' },
+  { EmpID:'EMP002',   Password:'emp456',   Role:'Employee', Name:'Nusrat Jahan',  Dept:'HR & Admin' },
+];
+
+// ── State ──
+let STATE = { user:null, role:'Admin', activeModule:'dashboard', chartsOk:false };
+
+// ── Toast ──
+const Toast = {
+  _c: document.getElementById('toast-container'),
+  _i: { s:'✅', e:'❌', i:'ℹ️', w:'⚠️' },
+  show(msg, type='i', dur=4000) {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${this._i[type]}</span><span>${msg}</span>`;
+    this._c.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('out');
+      el.addEventListener('animationend', () => el.remove(), { once:true });
+    }, dur);
+  },
+  s(m,d){ this.show(m,'s',d); }, e(m,d){ this.show(m,'e',d); },
+  i(m,d){ this.show(m,'i',d); }, w(m,d){ this.show(m,'w',d); }
+};
+
+// ── Session ──
+const Session = {
+  KEY: 'hrmis_session_v2',
+  save(u) {
+    const d = { ...u, ts: Date.now() };
+    sessionStorage.setItem(this.KEY, JSON.stringify(d));
+    if (document.getElementById('chk-rem')?.checked)
+      localStorage.setItem(this.KEY, JSON.stringify(d));
+  },
+  load() {
+    const r = sessionStorage.getItem(this.KEY) || localStorage.getItem(this.KEY);
+    try { return r ? JSON.parse(r) : null; } catch { return null; }
+  },
+  clear() { sessionStorage.removeItem(this.KEY); localStorage.removeItem(this.KEY); },
+  isValid() { const s = this.load(); return s && (Date.now()-s.ts) < 8*60*60*1000; }
+};
+
+// ── API ──
+const API = {
+  async post(action, payload={}) {
+    if (MOCK_MODE) return this._mock(action, payload);
+    const res = await fetch(GAS_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action, ...payload })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  },
+  _mock(action, payload) {
+    return new Promise(resolve => setTimeout(() => {
+      if (action === 'login') {
+        const u = MOCK_USERS.find(x => x.EmpID === payload.empId?.trim().toUpperCase());
+        if (!u) return resolve({ success:false, message:'Employee ID not found.' });
+        if (u.Password !== payload.password) return resolve({ success:false, message:'Incorrect password.' });
+        resolve({ success:true, user:{ empId:u.EmpID, role:u.Role, name:u.Name, dept:u.Dept } });
+      } else {
+        resolve({ success:false, message:'Mock: action '+action+' not implemented here.' });
+      }
+    }, 1100));
+  }
+};
+
+// ── Screen router ──
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+}
+
+// ── Module router ──
+const MODULE_META = {
+  'dashboard':      ['Analytics Dashboard',      'HRMIS › Admin › Dashboard'],
+  'employees':      ['Employee Management',      'HRMIS › Admin › Employees'],
+  'attendance':     ['Attendance & Leaves',      'HRMIS › Admin › Operations'],
+  'payroll':        ['Payroll & Finance',        'HRMIS › Admin › Finance'],
+  'loans':          ['Loans & Advances',         'HRMIS › Admin › Finance'],
+  'performance':    ['Performance & KPI',        'HRMIS › Admin › Growth'],
+  'tasks':          ['Daily Tasks',              'HRMIS › Admin › Operations'],
+  'training':       ['Training & SOPs',          'HRMIS › Admin › Learning'],
+  'notices':        ['Notice Board',             'HRMIS › Admin › Engagement'],
+  'helpdesk':       ['Helpdesk Tickets',         'HRMIS › Admin › Support'],
+  'offboarding':    ['Exit & Clearance',         'HRMIS › Admin › Lifecycle'],
+  'emp-home':       ['My Dashboard',             'HRMIS › Employee › Home'],
+  'emp-attendance': ['My Attendance',            'HRMIS › Employee › Attendance'],
+  'emp-leaves':     ['Leave Application',        'HRMIS › Employee › Leaves'],
+  'emp-payslip':    ['My Payslips',              'HRMIS › Employee › Finance'],
+  'emp-loan':       ['Loan & Advance',           'HRMIS › Employee › Finance'],
+  'emp-tasks':      ['My Daily Tasks',           'HRMIS › Employee › Tasks'],
+  'emp-notices':    ['Notice Board',             'HRMIS › Employee › Notices'],
+  'emp-helpdesk':   ['My Helpdesk Tickets',      'HRMIS › Employee › Support'],
+};
+
+function switchModule(modId, navEl) {
+  document.querySelectorAll('.module-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(`mod-${modId}`);
+  if (panel) panel.classList.add('active');
+  STATE.activeModule = modId;
+
+  const navSel = STATE.role==='Admin' ? '#admin-nav' : '#emp-nav';
+  document.querySelectorAll(`${navSel} .sb-item`).forEach(i => i.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+
+  document.querySelectorAll('.bn-item').forEach(i => i.classList.toggle('active', i.dataset.mod===modId));
+
+  const [title, bread] = MODULE_META[modId] || ['Dashboard', 'HRMIS'];
+  document.getElementById('tp-title').textContent = title;
+  document.getElementById('tp-bread').textContent = bread;
+
+  if (window.innerWidth < 900) closeSidebar();
+  if (modId==='dashboard' && !STATE.chartsOk) setTimeout(initCharts, 120);
+}
+
+// ── Role switch ──
+function switchRole(role) {
+  STATE.role = role;
+  const isAdmin = role === 'Admin';
+  document.getElementById('admin-nav').style.display = isAdmin ? '' : 'none';
+  document.getElementById('emp-nav').style.display   = isAdmin ? 'none' : '';
+  document.getElementById('rbtn-admin').classList.toggle('active', isAdmin);
+  document.getElementById('rbtn-emp').classList.toggle('active', !isAdmin);
+  document.getElementById('sb-urole').textContent = isAdmin ? 'Administrator' : 'Employee';
+  document.getElementById('sb-urole').style.color = isAdmin ? 'var(--cyan)' : 'var(--emerald)';
+  buildBottomNav(role);
+  const home = isAdmin ? 'dashboard' : 'emp-home';
+  const firstItem = document.querySelector(`${isAdmin?'#admin-nav':'#emp-nav'} .sb-item`);
+  switchModule(home, firstItem);
+  Toast.i(`Switched to ${role} view`);
+}
+
+// ── Bottom nav ──
+function buildBottomNav(role) {
+  const items = role==='Admin' ? [
+    {ico:'📊',lbl:'Dashboard',mod:'dashboard'},
+    {ico:'👥',lbl:'Employees',mod:'employees'},
+    {ico:'📍',lbl:'Attendance',mod:'attendance',b:3},
+    {ico:'💰',lbl:'Payroll',mod:'payroll'},
+    {ico:'🎫',lbl:'Helpdesk',mod:'helpdesk',b:5},
+  ] : [
+    {ico:'🏠',lbl:'Home',mod:'emp-home'},
+    {ico:'📍',lbl:'Attendance',mod:'emp-attendance'},
+    {ico:'💳',lbl:'Payslip',mod:'emp-payslip'},
+    {ico:'✅',lbl:'Tasks',mod:'emp-tasks'},
+    {ico:'🎫',lbl:'Support',mod:'emp-helpdesk'},
+  ];
+  document.getElementById('bottom-nav').innerHTML = items.map(it=>`
+    <div class="bn-item${it.mod===STATE.activeModule?' active':''}" data-mod="${it.mod}"
+         onclick="switchModule('${it.mod}',null)">
+      ${it.b?`<span class="bn-badge-dot">${it.b}</span>`:''}
+      <span class="bn-icon">${it.ico}</span>
+      <span class="bn-label">${it.lbl}</span>
+    </div>`).join('');
+}
+
+// ── Sidebar ──
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sb-overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+}
+
+// ── Login ──
+(function initLogin() {
+  const form = document.getElementById('login-form');
+  const btn  = document.getElementById('btn-signin');
+  const pwd  = document.getElementById('i-pwd');
+  const tog  = document.getElementById('pwd-tog');
+
+  tog.addEventListener('click', () => {
+    pwd.type = pwd.type==='password' ? 'text' : 'password';
+    tog.textContent = pwd.type==='password' ? '👁️' : '🙈';
+  });
+  document.getElementById('forgot').addEventListener('click', e => {
+    e.preventDefault(); Toast.i('Contact your HR Administrator to reset your password.');
+  });
+  ['i-empid','i-pwd'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      document.querySelectorAll('.lf-field-err').forEach(el => el.classList.remove('show'));
+    });
+  });
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    document.querySelectorAll('.lf-field-err').forEach(el => el.classList.remove('show'));
+    const empId = document.getElementById('i-empid').value.trim();
+    const pass  = document.getElementById('i-pwd').value;
+    let ok = true;
+    if (!empId) { document.getElementById('e-empid').classList.add('show'); ok=false; }
+    if (!pass)  { document.getElementById('e-pwd').classList.add('show');   ok=false; }
+    if (!ok) return;
+
+    btn.classList.add('loading'); btn.disabled=true;
+    try {
+      const res = await API.post('login', { empId, password:pass });
+      if (res.success) {
+        STATE.user = res.user;
+        Session.save(res.user);
+        Toast.s(`Welcome back, ${res.user.name}! 👋`);
+        setTimeout(() => bootDashboard(res.user), 900);
+      } else {
+        Toast.e(res.message);
+        const card = document.querySelector('.login-card');
+        card.style.animation='none'; card.offsetHeight;
+        card.style.animation='shake .4s ease';
+      }
+    } catch(err) { Toast.e('Network error — check your connection.'); }
+    finally { btn.classList.remove('loading'); btn.disabled=false; }
+  });
+})();
+
+// ── Boot dashboard ──
+function bootDashboard(user) {
+  STATE.user = user; STATE.role = user.role;
+  const init = user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sb-avatar').textContent = init;
+  document.getElementById('sb-uname').textContent  = user.name;
+  document.getElementById('sb-urole').textContent  = user.role==='Admin' ? 'Administrator' : 'Employee';
+  document.getElementById('sb-urole').style.color  = user.role==='Admin' ? 'var(--cyan)' : 'var(--emerald)';
+  document.getElementById('emp-av').textContent     = init;
+  document.getElementById('emp-wname').textContent  = user.name;
+  document.getElementById('emp-wrole').textContent  = `${user.dept||'Staff'} · ${user.empId}`;
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+  const isAdmin = user.role==='Admin';
+  document.getElementById('admin-nav').style.display = isAdmin ? '' : 'none';
+  document.getElementById('emp-nav').style.display   = isAdmin ? 'none' : '';
+  document.getElementById('rbtn-admin').classList.toggle('active', isAdmin);
+  document.getElementById('rbtn-emp').classList.toggle('active', !isAdmin);
+
+  // MOCK_MODE badge
+  document.getElementById('mock-badge').textContent = MOCK_MODE
+    ? '🧪 PREVIEW MODE — Mock Data Active'
+    : '✅ LIVE MODE — Connected to Google Sheets';
+  document.getElementById('mock-badge').style.background = MOCK_MODE
+    ? 'rgba(255,179,0,0.1)' : 'rgba(0,229,160,0.1)';
+  document.getElementById('mock-badge').style.color = MOCK_MODE ? 'var(--amber)' : 'var(--emerald)';
+  document.getElementById('mock-badge').style.borderColor = MOCK_MODE
+    ? 'rgba(255,179,0,0.3)' : 'rgba(0,229,160,0.3)';
+
+  buildBottomNav(user.role);
+  showScreen('dashboard');
+
+  const home = isAdmin ? 'dashboard' : 'emp-home';
+  const firstItem = document.querySelector(`${isAdmin?'#admin-nav':'#emp-nav'} .sb-item`);
+  document.querySelectorAll('.module-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`mod-${home}`)?.classList.add('active');
+  if (firstItem) firstItem.classList.add('active');
+
+  buildDeptSalary();
+  buildActivityFeed();
+  setTimeout(initCharts, 500);
+}
+
+// ── Logout ──
+function logout() {
+  Session.clear(); STATE.user=null; STATE.chartsOk=false;
+  document.getElementById('login-form').reset();
+  Object.values(CHARTS).forEach(c => { if(c) c.destroy(); });
+  Object.keys(CHARTS).forEach(k => CHARTS[k]=null);
+  showScreen('login');
+  Toast.i('Signed out successfully.');
+}
+
+// ── Fill creds (demo) ──
+function fillCreds(id, pwd) {
+  document.getElementById('i-empid').value = id;
+  document.getElementById('i-pwd').value   = pwd;
+  Toast.i('Credentials filled — click Sign In', 2500);
+}
+
+// ── Live clock ──
+function tick() {
+  const n = new Date();
+  document.getElementById('sb-clock').textContent = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('sb-date').textContent  = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+setInterval(tick, 1000); tick();
+
+// ── Dept salary bars ──
+function buildDeptSalary() {
+  const depts = [
+    {name:'Management',  amt:380000, color:'var(--cyan)'},
+    {name:'Front Office',amt:220000, color:'var(--indigo)'},
+    {name:'Kitchen',     amt:195000, color:'var(--emerald)'},
+    {name:'Service',     amt:175000, color:'var(--amber)'},
+    {name:'HR & Admin',  amt:140000, color:'var(--violet)'},
+    {name:'Security',    amt:130000, color:'var(--rose)'},
+  ];
+  const max = Math.max(...depts.map(d=>d.amt));
+  document.getElementById('dept-salary').innerHTML = depts.map(d=>`
+    <div class="dept-row">
+      <div class="dept-name">${d.name}</div>
+      <div class="dept-bar-wrap">
+        <div class="dept-bar" style="width:0%;background:${d.color}" data-w="${Math.round(d.amt/max*100)}"></div>
+      </div>
+      <div class="dept-amt">৳${(d.amt/1000).toFixed(0)}K</div>
+    </div>`).join('');
+  setTimeout(() => {
+    document.querySelectorAll('.dept-bar').forEach(b => b.style.width = b.dataset.w+'%');
+  }, 300);
+}
+
+// ── Activity feed ──
+function buildActivityFeed() {
+  const items = [
+    {name:'Karim Hossain', desc:'Checked in via GPS',         time:'09:02', badge:'in',    color:'#4f7dff', init:'KH'},
+    {name:'Nusrat Jahan',  desc:'Checked in — 14 min late',  time:'09:19', badge:'late',  color:'#ffb300', init:'NJ'},
+    {name:'Arif Rahman',   desc:'Applied for Annual Leave',   time:'09:31', badge:'leave', color:'#a855f7', init:'AR'},
+    {name:'Sadia Islam',   desc:'Checked in via QR Scan',     time:'09:45', badge:'in',    color:'#00e5a0', init:'SI'},
+    {name:'Tanvir Ahmed',  desc:'Checked out early',          time:'13:12', badge:'out',   color:'#ff4d6d', init:'TA'},
+  ];
+  document.getElementById('activity-feed').innerHTML = items.map(a=>`
+    <div class="act-item">
+      <div class="act-avatar" style="background:${a.color}22;color:${a.color};border:1px solid ${a.color}33">${a.init}</div>
+      <div style="flex:1;min-width:0">
+        <div class="act-name">${a.name}</div>
+        <div class="act-desc">${a.desc}</div>
+      </div>
+      <span class="act-badge ${a.badge}">${a.badge.toUpperCase()}</span>
+      <div class="act-time">${a.time}</div>
+    </div>`).join('');
+}
+
+// ── Charts ──
+const CHARTS = { att:null, hc:null, payroll:null };
+Chart.defaults.color = '#7a9bc8';
+Chart.defaults.borderColor = 'rgba(79,125,255,0.08)';
+Chart.defaults.font.family = "'JetBrains Mono',monospace";
+
+function initCharts() {
+  if (STATE.chartsOk) return;
+
+  // Attendance trend
+  const attCtx = document.getElementById('chart-att');
+  if (attCtx && !CHARTS.att) {
+    CHARTS.att = new Chart(attCtx, {
+      type:'bar',
+      data:{
+        labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets:[
+          {label:'Present',data:[42,45,43,41,44,38,44],backgroundColor:'rgba(0,212,255,0.15)',borderColor:'rgba(0,212,255,0.7)',borderWidth:1.5,borderRadius:5,borderSkipped:false},
+          {label:'Absent', data:[6,3,5,7,4,10,4],      backgroundColor:'rgba(255,77,109,0.12)', borderColor:'rgba(255,77,109,0.5)',  borderWidth:1.5,borderRadius:5,borderSkipped:false},
+          {label:'Late',   data:[5,3,7,4,6,2,7],        type:'line',tension:.4,fill:false,borderColor:'rgba(255,179,0,0.7)',pointBackgroundColor:'rgba(255,179,0,0.8)',pointRadius:4,borderWidth:1.5},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,22,41,0.95)',borderColor:'rgba(0,212,255,0.2)',borderWidth:1,titleColor:'#e8f0fe',bodyColor:'#7a9bc8',padding:12,cornerRadius:8}},
+        scales:{x:{grid:{color:'rgba(79,125,255,0.06)'},ticks:{font:{size:11}}},
+                y:{grid:{color:'rgba(79,125,255,0.06)'},ticks:{font:{size:11}},beginAtZero:true,max:55}}}
+    });
+  }
+
+  // Headcount donut
+  const hcCtx = document.getElementById('chart-hc');
+  if (hcCtx && !CHARTS.hc) {
+    CHARTS.hc = new Chart(hcCtx, {
+      type:'doughnut',
+      data:{
+        labels:['Management','Front Office','Kitchen','Service','HR & Admin','Security'],
+        datasets:[{data:[6,12,10,8,6,6],
+          backgroundColor:['rgba(0,212,255,.7)','rgba(79,125,255,.7)','rgba(0,229,160,.7)','rgba(255,179,0,.7)','rgba(168,85,247,.7)','rgba(255,77,109,.7)'],
+          borderColor:'rgba(13,22,41,.5)',borderWidth:2,hoverOffset:6}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+        plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:10,boxWidth:10,boxHeight:10,color:'#7a9bc8'}},
+          tooltip:{backgroundColor:'rgba(13,22,41,0.95)',borderColor:'rgba(0,212,255,0.2)',borderWidth:1,titleColor:'#e8f0fe',bodyColor:'#7a9bc8',padding:10,cornerRadius:8,
+            callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed} employees`}}}}
+    });
+  }
+
+  // Payroll bars
+  const prCtx = document.getElementById('chart-payroll');
+  if (prCtx && !CHARTS.payroll) {
+    CHARTS.payroll = new Chart(prCtx, {
+      type:'bar',
+      data:{
+        labels:['Oct','Nov','Dec','Jan','Feb','Mar'],
+        datasets:[
+          {label:'Basic Salary',   data:[820000,830000,870000,840000,860000,880000],backgroundColor:'rgba(0,212,255,0.2)',borderColor:'rgba(0,212,255,0.6)',borderWidth:1.5,borderRadius:4},
+          {label:'Service Charge', data:[180000,195000,210000,185000,200000,195000],backgroundColor:'rgba(0,229,160,0.15)',borderColor:'rgba(0,229,160,0.5)',borderWidth:1.5,borderRadius:4},
+          {label:'Bonus',          data:[0,0,150000,0,0,0],                         backgroundColor:'rgba(255,179,0,0.15)',borderColor:'rgba(255,179,0,0.5)',borderWidth:1.5,borderRadius:4},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{position:'top',labels:{font:{size:10},padding:14,boxWidth:10,boxHeight:10,color:'#7a9bc8'}},
+          tooltip:{backgroundColor:'rgba(13,22,41,0.95)',borderColor:'rgba(0,212,255,0.2)',borderWidth:1,titleColor:'#e8f0fe',bodyColor:'#7a9bc8',padding:12,cornerRadius:8,
+            callbacks:{label:ctx=>` ${ctx.dataset.label}: ৳${(ctx.parsed.y/1000).toFixed(0)}K`}}},
+        scales:{x:{grid:{color:'rgba(79,125,255,0.06)'},ticks:{font:{size:11}}},
+                y:{grid:{color:'rgba(79,125,255,0.06)'},ticks:{font:{size:11},callback:v=>'৳'+(v/1000)+'K'},beginAtZero:true}}}
+    });
+  }
+
+  STATE.chartsOk = true;
+}
+
+function switchChartTab(el, period) {
+  document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const c = CHARTS.att; if (!c) return;
+  const d7  = [[42,45,43,41,44,38,44],[6,3,5,7,4,10,4],[5,3,7,4,6,2,7]];
+  const d30 = [Array.from({length:30},()=>38+Math.floor(Math.random()*9)),
+               Array.from({length:30},()=>3+Math.floor(Math.random()*8)),
+               Array.from({length:30},()=>2+Math.floor(Math.random()*7))];
+  const d3m = [[42,43,41,44,40,43],[5,4,6,3,7,4],[4,5,3,6,4,5]];
+  const labels = {
+    '7d': ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    '30d': Array.from({length:30},(_,i)=>'D'+(i+1)),
+    '3m':  ['Oct','Nov','Dec','Jan','Feb','Mar'],
+  };
+  const data = { '7d':d7, '30d':d30, '3m':d3m };
+  c.data.labels = labels[period];
+  c.data.datasets.forEach((ds,i) => ds.data = data[period][i]);
+  c.update('active');
+}
+
+// ── Auto-restore session ──
+(function boot() {
+  if (Session.isValid()) {
+    const s = Session.load();
+    Toast.s(`Session restored — Welcome back, ${s.name}! 👋`);
+    setTimeout(() => bootDashboard(s), 400);
+  }
+})();
+</script>
+</body>
+</html>

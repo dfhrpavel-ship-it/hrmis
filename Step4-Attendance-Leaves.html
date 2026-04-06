@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>HRMIS — Step 4: Attendance & Leaves</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+/* ═══════════════ DESIGN SYSTEM ═══════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#060d1a;--base:#0b1525;--surface:#0f1e36;
+  --elevated:#142240;--card:rgba(15,30,54,0.95);
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.09);--cyan-glow:rgba(0,212,255,0.2);
+  --indigo:#4f7dff;--indigo-dim:rgba(79,125,255,0.09);
+  --emerald:#00e5a0;--emerald-dim:rgba(0,229,160,0.09);
+  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.09);
+  --rose:#ff4d6d;--rose-dim:rgba(255,77,109,0.09);
+  --violet:#a855f7;--violet-dim:rgba(168,85,247,0.09);
+  --text:#e8f0fe;--text2:#7a9bc8;--text3:#3a5478;
+  --border:rgba(79,125,255,0.09);--border2:rgba(0,212,255,0.18);
+  --r-xs:6px;--r-sm:10px;--r-md:16px;--r-lg:22px;
+  --shadow:0 8px 32px rgba(0,0,0,0.45);
+  --tx:all 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--void);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ═══════════════ LAYOUT ═══════════════ */
+#app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:228px;flex-shrink:0;background:var(--base);border-right:1px solid var(--border);
+  display:flex;flex-direction:column}
+.sb-brand{padding:18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:11px}
+.sb-ico{width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(79,125,255,0.2));
+  border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:17px}
+.sb-ttl{font-size:13px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sb-sub{font-size:9.5px;color:var(--text3)}
+.sb-nav{flex:1;overflow-y:auto;padding:6px 0}
+.sb-sec{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;
+  color:var(--text3);padding:12px 18px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px 9px 16px;
+  margin:1px 7px;border-radius:var(--r-sm);cursor:pointer;transition:var(--tx);
+  border:1px solid transparent;font-size:12.5px;color:var(--text2);font-weight:500;position:relative}
+.nav-item:hover{background:var(--elevated);border-color:var(--border)}
+.nav-item.active{background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(79,125,255,0.07));
+  border-color:var(--border2);color:var(--text)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:22%;height:56%;width:3px;
+  border-radius:0 3px 3px 0;background:linear-gradient(to bottom,var(--cyan),var(--indigo))}
+.nav-ico{font-size:15px;width:18px;text-align:center}
+.nav-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:20px;
+  background:var(--rose);color:#fff;margin-left:auto}
+.nav-badge.g{background:var(--emerald);color:#000}
+.sb-foot{padding:12px;border-top:1px solid var(--border)}
+.sb-clock{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--cyan);text-align:center}
+.sb-dt{font-size:10px;color:var(--text3);text-align:center;margin-top:2px}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:58px;flex-shrink:0;background:rgba(11,21,37,0.92);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:14px}
+.tp-left{} .tp-title{font-size:14px;font-weight:700;color:var(--text)}
+.tp-bread{font-size:11px;color:var(--text3);margin-top:1px}
+.tp-right{display:flex;align-items:center;gap:8px}
+.tp-ico{width:34px;height:34px;border-radius:var(--r-xs);background:var(--surface);
+  border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:var(--tx);font-size:14px;position:relative}
+.tp-ico:hover{border-color:var(--border2);color:var(--cyan)}
+.ndot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;
+  background:var(--rose);border:1.5px solid var(--void)}
+
+/* ─── TABS ─── */
+.tab-bar{display:flex;gap:0;background:var(--base);border-bottom:1px solid var(--border);
+  padding:0 22px;flex-shrink:0}
+.tab{padding:13px 18px;font-size:12.5px;font-weight:700;color:var(--text3);cursor:pointer;
+  border-bottom:2px solid transparent;transition:var(--tx);display:flex;align-items:center;gap:7px;
+  white-space:nowrap}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab-badge{font-size:9px;padding:2px 6px;border-radius:20px;background:var(--rose);color:#fff;font-weight:800}
+
+.content{flex:1;overflow-y:auto;padding:22px}
+.tab-panel{display:none;animation:pIn .25s ease both}
+.tab-panel.active{display:block}
+@keyframes pIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════ TOAST ═══════════════ */
+#toastbox{position:fixed;top:14px;right:14px;z-index:9999;
+  display:flex;flex-direction:column;gap:7px;pointer-events:none;max-width:300px}
+.toast{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:var(--r-sm);
+  font-size:12.5px;font-weight:500;pointer-events:all;backdrop-filter:blur(12px);
+  animation:tIn .28s cubic-bezier(0.34,1.56,0.64,1) both;box-shadow:var(--shadow)}
+.toast.s{background:rgba(0,229,160,0.12);border:1px solid rgba(0,229,160,0.28);color:#4aeab0}
+.toast.e{background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.28);color:#ff7a91}
+.toast.i{background:rgba(0,212,255,0.09);border:1px solid rgba(0,212,255,0.22);color:#7ad4ff}
+.toast.w{background:rgba(255,179,0,0.09);border:1px solid rgba(255,179,0,0.22);color:#ffd060}
+@keyframes tIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tOut{to{opacity:0;transform:translateX(14px);max-height:0;padding:0;margin:0}}
+.toast.out{animation:tOut .22s ease forwards}
+
+/* ═══════════════ PAGE HEADER ═══════════════ */
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:14px;flex-wrap:wrap}
+.ph-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:var(--cyan)}
+.ph-title{font-size:20px;font-weight:800;letter-spacing:-.4px}
+.ph-sub{font-size:12.5px;color:var(--text2);margin-top:3px}
+.btn-p{padding:9px 18px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(79,125,255,0.16));
+  border:1px solid var(--border2);border-radius:var(--r-xs);color:var(--cyan);
+  font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--tx);
+  display:flex;align-items:center;gap:7px;white-space:nowrap}
+.btn-p:hover{background:linear-gradient(135deg,rgba(0,212,255,0.18),rgba(79,125,255,0.24))}
+.btn-p:disabled{opacity:.5;cursor:not-allowed}
+.btn-g{padding:9px 16px;background:var(--elevated);border:1px solid var(--border);
+  border-radius:var(--r-xs);color:var(--text2);font-size:12px;font-weight:600;
+  font-family:inherit;cursor:pointer;transition:var(--tx);display:flex;align-items:center;gap:6px}
+.btn-g:hover{border-color:var(--border2);color:var(--text)}
+.btn-danger{padding:8px 14px;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.22);
+  border-radius:var(--r-xs);color:var(--rose);font-size:12px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:var(--tx)}
+.btn-danger:hover{background:rgba(255,77,109,0.15)}
+.btn-success{padding:8px 14px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.22);
+  border-radius:var(--r-xs);color:var(--emerald);font-size:12px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:var(--tx)}
+.btn-success:hover{background:rgba(0,229,160,0.15)}
+
+/* ═══════════════ KPI ROW ═══════════════ */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:16px 18px;position:relative;overflow:hidden;transition:var(--tx)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r-md) var(--r-md) 0 0}
+.kpi.cyan::before{background:linear-gradient(90deg,var(--cyan),transparent)}
+.kpi.emerald::before{background:linear-gradient(90deg,var(--emerald),transparent)}
+.kpi.amber::before{background:linear-gradient(90deg,var(--amber),transparent)}
+.kpi.rose::before{background:linear-gradient(90deg,var(--rose),transparent)}
+.kpi.violet::before{background:linear-gradient(90deg,var(--violet),transparent)}
+.kpi:hover{border-color:var(--border2);transform:translateY(-1px)}
+.kpi-ico{font-size:20px;margin-bottom:8px}
+.kpi-val{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--text);line-height:1}
+.kpi-lbl{font-size:11px;color:var(--text2);margin-top:4px}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+
+/* ═══════════════ ATTENDANCE CHECK-IN PANEL ═══════════════ */
+.checkin-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+
+/* Status card */
+.status-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.status-ring{width:120px;height:120px;border-radius:50%;position:relative;
+  display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.status-ring::before{content:'';position:absolute;inset:0;border-radius:50%;
+  border:3px solid var(--border);animation:ringPulse 3s ease-in-out infinite}
+.status-ring.checked-in::before{border-color:rgba(0,229,160,0.4);box-shadow:0 0 30px rgba(0,229,160,0.15)}
+.status-ring.checked-out::before{border-color:rgba(79,125,255,0.4)}
+.status-ring.not-in::before{border-color:rgba(0,212,255,0.3)}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.04);opacity:1}}
+.status-emoji{font-size:42px}
+.status-label{font-size:16px;font-weight:800;color:var(--text)}
+.status-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2)}
+.status-badge{font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.status-badge.ontime{background:var(--emerald-dim);color:var(--emerald)}
+.status-badge.late{background:var(--amber-dim);color:var(--amber)}
+.status-badge.absent{background:var(--rose-dim);color:var(--rose)}
+
+/* Method cards */
+.method-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:24px;display:flex;flex-direction:column;gap:16px}
+.method-tabs{display:flex;gap:0;background:var(--surface);border-radius:var(--r-sm);padding:4px;border:1px solid var(--border)}
+.method-tab{flex:1;padding:8px;font-size:12px;font-weight:700;text-align:center;
+  border-radius:var(--r-xs);cursor:pointer;transition:var(--tx);color:var(--text2);
+  display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:none;font-family:inherit}
+.method-tab.active{background:var(--cyan);color:var(--void)}
+.method-panel{display:none} .method-panel.active{display:flex;flex-direction:column;gap:12px}
+
+/* GPS panel */
+.gps-map-preview{height:110px;background:var(--surface);border-radius:var(--r-sm);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:8px;cursor:pointer;transition:var(--tx);position:relative;overflow:hidden}
+.gps-map-preview:hover{border-color:var(--border2)}
+.gps-map-preview.acquired{background:rgba(0,229,160,0.06);border-color:rgba(0,229,160,0.25)}
+.gps-coords{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--emerald);text-align:center}
+.gps-accuracy{font-size:10.5px;color:var(--text3)}
+.gps-pulse{position:absolute;width:12px;height:12px;border-radius:50%;
+  background:var(--emerald);animation:gpsPulse 1.5s ease-in-out infinite}
+@keyframes gpsPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(2.2);opacity:.3}}
+
+/* QR panel */
+#qr-reader-wrap{border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border);
+  background:var(--surface);min-height:150px;position:relative}
+#qr-reader{width:100%}
+.qr-overlay-text{position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(11,21,37,0.9));
+  padding:10px 14px;font-size:11px;color:var(--text2);text-align:center}
+
+/* Check-in button */
+.btn-checkin{width:100%;padding:14px;border:none;border-radius:var(--r-sm);
+  font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;transition:var(--tx);
+  display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+.btn-checkin.in{background:linear-gradient(135deg,rgba(0,229,160,0.15),rgba(0,212,255,0.1));
+  border:1px solid rgba(0,229,160,0.35);color:var(--emerald)}
+.btn-checkin.in:hover{background:linear-gradient(135deg,rgba(0,229,160,0.22),rgba(0,212,255,0.16))}
+.btn-checkin.out{background:linear-gradient(135deg,rgba(255,77,109,0.12),rgba(168,85,247,0.1));
+  border:1px solid rgba(255,77,109,0.3);color:var(--rose)}
+.btn-checkin.out:hover{background:linear-gradient(135deg,rgba(255,77,109,0.2),rgba(168,85,247,0.16))}
+.btn-checkin:disabled{opacity:.5;cursor:not-allowed}
+.btn-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.loading .btn-spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════════════ FILTERS ═══════════════ */
+.filter-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.f-search{display:flex;align-items:center;gap:7px;padding:8px 12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);flex:1;min-width:180px}
+.f-search input{background:none;border:none;outline:none;color:var(--text);
+  font-size:12.5px;font-family:inherit;width:100%}
+.f-search input::placeholder{color:var(--text3)}
+.f-sel{padding:8px 12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text2);font-size:12px;font-family:inherit;
+  outline:none;cursor:pointer;transition:var(--tx)}
+.f-sel:focus{border-color:var(--border2)}
+
+/* ═══════════════ ATTENDANCE TABLE ═══════════════ */
+.att-table-wrap{border-radius:var(--r-md);border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
+.att-table{width:100%;border-collapse:collapse;min-width:700px}
+.att-table th{background:var(--surface);padding:10px 14px;text-align:left;
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+.att-table td{padding:11px 14px;font-size:12.5px;color:var(--text2);
+  border-bottom:1px solid rgba(79,125,255,0.05)}
+.att-table tr:last-child td{border-bottom:none}
+.att-table tr:hover td{background:rgba(0,212,255,0.02)}
+.td-name{font-weight:600;color:var(--text)}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.late-badge{font-size:9.5px;padding:2px 8px;border-radius:20px;font-weight:800}
+.late-badge.Late{background:var(--amber-dim);color:var(--amber)}
+.late-badge.On\ Time{background:var(--emerald-dim);color:var(--emerald)}
+.late-badge.Absent{background:var(--rose-dim);color:var(--rose)}
+.att-type-badge{font-size:9.5px;padding:2px 7px;border-radius:20px;font-weight:700}
+.att-type-badge.GPS{background:var(--cyan-dim);color:var(--cyan)}
+.att-type-badge.QR{background:var(--violet-dim);color:var(--violet)}
+.att-type-badge.Manual{background:var(--indigo-dim);color:var(--indigo)}
+.att-type-badge.System{background:rgba(122,155,200,0.1);color:var(--text2)}
+.hours-chip{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 7px;
+  border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+
+/* ═══════════════ LEAVE CARDS ═══════════════ */
+.leave-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.leave-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:18px;transition:var(--tx);position:relative;overflow:hidden}
+.leave-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.leave-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.leave-card.Pending::before{background:var(--amber)}
+.leave-card.Approved::before{background:var(--emerald)}
+.leave-card.Rejected::before{background:var(--rose)}
+.lc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.lc-name{font-size:13.5px;font-weight:700;color:var(--text)}
+.lc-id{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.lc-status{font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase}
+.lc-status.Pending{background:var(--amber-dim);color:var(--amber)}
+.lc-status.Approved{background:var(--emerald-dim);color:var(--emerald)}
+.lc-status.Rejected{background:var(--rose-dim);color:var(--rose)}
+.lc-dates{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);
+  font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+.lc-arrow{color:var(--text3)}
+.lc-days{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+  background:var(--indigo-dim);color:var(--indigo)}
+.lc-reason{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:12px;
+  padding-bottom:12px;border-bottom:1px solid var(--border)}
+.lc-dept{font-size:10.5px;color:var(--text3)}
+.lc-actions{display:flex;gap:7px}
+
+/* ═══════════════ LEAVE FORM ═══════════════ */
+.leave-form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;margin-bottom:20px}
+.lf-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:18px;
+  display:flex;align-items:center;gap:8px}
+.lf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lf-grid.three{grid-template-columns:1fr 1fr 1fr}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.span2{grid-column:span 2}
+.fl{font-size:10.5px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.fi,.fs,.fta{padding:10px 12px;background:rgba(6,13,26,0.7);border:1px solid var(--border);
+  border-radius:var(--r-xs);color:var(--text);font-size:13px;font-family:inherit;
+  outline:none;transition:var(--tx);width:100%;-webkit-appearance:none}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--border2);box-shadow:0 0 0 3px var(--cyan-dim)}
+.fi::placeholder,.fta::placeholder{color:var(--text3)}
+.fs option{background:var(--surface)}
+.fta{resize:vertical;min-height:72px}
+.leave-days-preview{font-size:12px;color:var(--cyan);margin-top:4px;
+  font-family:'JetBrains Mono',monospace}
+
+/* ═══════════════ MANUAL ATTENDANCE MODAL ═══════════════ */
+.modal-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .22s ease}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--base);border:1px solid var(--border2);border-radius:var(--r-lg);
+  width:100%;max-width:500px;box-shadow:0 40px 80px rgba(0,0,0,0.6);
+  transform:translateY(16px) scale(.97);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1)}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-hd{padding:22px 24px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-size:15px;font-weight:800;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--border);border-radius:var(--r-xs);
+  color:var(--text2);cursor:pointer;font-size:14px;padding:5px 8px;transition:var(--tx)}
+.modal-close:hover{border-color:var(--rose);color:var(--rose)}
+.modal-body{padding:20px 24px}
+.modal-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+
+/* ═══════════════ CALENDAR HEATMAP ═══════════════ */
+.calendar-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;margin-bottom:20px}
+.cal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.cal-title{font-size:13px;font-weight:800;color:var(--text)}
+.cal-nav{display:flex;align-items:center;gap:10px}
+.cal-nav-btn{background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-xs);
+  color:var(--text2);cursor:pointer;padding:5px 10px;font-size:13px;transition:var(--tx)}
+.cal-nav-btn:hover{border-color:var(--border2);color:var(--cyan)}
+.cal-month{font-size:13px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;min-width:110px;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-header{font-size:10px;font-weight:800;text-align:center;color:var(--text3);
+  padding:4px 0;text-transform:uppercase}
+.cal-day{aspect-ratio:1;border-radius:var(--r-xs);display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:600;cursor:default;transition:var(--tx);
+  border:1px solid transparent;position:relative}
+.cal-day:hover{border-color:var(--border)}
+.cal-day.empty{background:none}
+.cal-day.present{background:rgba(0,229,160,0.15);color:var(--emerald)}
+.cal-day.late{background:rgba(255,179,0,0.15);color:var(--amber)}
+.cal-day.absent{background:rgba(255,77,109,0.12);color:var(--rose)}
+.cal-day.weekend{background:rgba(79,125,255,0.06);color:var(--text3)}
+.cal-day.today{border-color:var(--cyan)!important;font-weight:800}
+.cal-day.future{color:var(--text3);opacity:.4}
+.cal-legend{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
+.cal-leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.cal-leg-dot{width:10px;height:10px;border-radius:3px}
+
+/* ═══════════════ EMPTY / LOADING ═══════════════ */
+.empty-state{padding:50px 20px;text-align:center;color:var(--text3)}
+.empty-ico{font-size:44px;margin-bottom:10px;opacity:.5}
+.empty-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:5px}
+.empty-sub{font-size:12.5px;line-height:1.6}
+.loading-st{display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:50px;color:var(--text2);font-size:13px}
+.spinner{width:20px;height:20px;border:2px solid var(--border);
+  border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .checkin-layout{grid-template-columns:1fr}
+  .lf-grid{grid-template-columns:1fr}
+  .fg.span2{grid-column:span 1}
+  .lf-grid.three{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .content{padding:14px}
+  .tab-bar{padding:0 14px;overflow-x:auto}
+  .leave-grid{grid-template-columns:1fr}
+}
+  </style>
+</head>
+<body>
+<div id="toastbox"></div>
+
+<!-- Manual Attendance Modal -->
+<div class="modal-overlay" id="manual-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <div class="modal-title">📝 Mark Manual Attendance</div>
+        <p style="font-size:11.5px;color:var(--text2);margin-top:3px">Admin override — for missed check-ins</p>
+      </div>
+      <button class="modal-close" onclick="closeManualModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fg">
+          <label class="fl">Employee ID</label>
+          <select class="fs" id="m-empid">
+            <option value="">— Select Employee —</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Date</label>
+          <input type="date" class="fi" id="m-date"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Check-In Time</label>
+          <input type="time" class="fi" id="m-checkin"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Check-Out Time</label>
+          <input type="time" class="fi" id="m-checkout"/>
+        </div>
+        <div class="fg" style="grid-column:span 2">
+          <label class="fl">Attendance Type</label>
+          <select class="fs" id="m-type">
+            <option value="Manual">Manual (Admin Override)</option>
+            <option value="GPS">GPS</option>
+            <option value="QR">QR Scan</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-g" onclick="closeManualModal()">Cancel</button>
+      <button class="btn-p" onclick="submitManualAttendance()">✅ Mark Attendance</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN APP ═══════════════ -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-ico">🏢</div>
+      <div><div class="sb-ttl">HRMIS</div><div class="sb-sub">Enterprise Portal</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sec">Core</div>
+      <div class="nav-item"><span class="nav-ico">📊</span>Dashboard</div>
+      <div class="nav-item"><span class="nav-ico">👥</span>Employees<span class="nav-badge g">48</span></div>
+      <div class="sb-sec">Operations</div>
+      <div class="nav-item active"><span class="nav-ico">📍</span>Attendance & Leaves</div>
+      <div class="nav-item"><span class="nav-ico">💰</span>Payroll<span class="nav-badge">Step 5</span></div>
+      <div class="nav-item"><span class="nav-ico">🏦</span>Loans</div>
+      <div class="sb-sec">Growth</div>
+      <div class="nav-item"><span class="nav-ico">⭐</span>Performance</div>
+      <div class="nav-item"><span class="nav-ico">✅</span>Daily Tasks</div>
+      <div class="sb-sec">Engagement</div>
+      <div class="nav-item"><span class="nav-ico">📢</span>Notices</div>
+      <div class="nav-item"><span class="nav-ico">🎫</span>Helpdesk<span class="nav-badge">5</span></div>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-clock" id="sb-clock">--:--:--</div>
+      <div class="sb-dt" id="sb-dt">---</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="tp-left">
+        <div class="tp-title">Attendance & Leaves</div>
+        <div class="tp-bread">HRMIS › Admin › Operations</div>
+      </div>
+      <div class="tp-right">
+        <button class="btn-g" onclick="openManualModal()" style="font-size:12px">📝 Manual Mark</button>
+        <button class="btn-p" onclick="runAutoLateMark()" style="font-size:12px">⚡ Auto Late Mark</button>
+        <div class="tp-ico">🔔<span class="ndot"></span></div>
+        <div class="tp-ico">⚙️</div>
+      </div>
+    </header>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('att-admin')">📊 Admin Overview</div>
+      <div class="tab" onclick="switchTab('att-employee')">
+        📍 Employee Check-In
+        <span class="tab-badge" id="pending-leave-badge" style="display:none">0</span>
+      </div>
+      <div class="tab" onclick="switchTab('att-leaves')">
+        🌴 Leave Management
+        <span class="tab-badge" id="tab-leave-badge">—</span>
+      </div>
+      <div class="tab" onclick="switchTab('att-calendar')">📅 Monthly Calendar</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══ TAB 1: ADMIN ATTENDANCE OVERVIEW ═══ -->
+      <div class="tab-panel active" id="tab-att-admin">
+        <div class="page-hd">
+          <div>
+            <div class="ph-tag">Admin Module</div>
+            <div class="ph-title">📍 Attendance Master View</div>
+            <div class="ph-sub">Real-time workforce attendance intelligence</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select class="f-sel" id="admin-month-filter" onchange="loadAdminAttendance()">
+              <!-- months populated by JS -->
+            </select>
+            <button class="btn-g" onclick="exportAttendanceCSV()">⬇️ Export CSV</button>
+          </div>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="kpi-row" id="admin-kpi-row">
+          <div class="kpi cyan"><div class="kpi-ico">👥</div><div class="kpi-val" id="k-total">—</div><div class="kpi-lbl">Total Records</div></div>
+          <div class="kpi emerald"><div class="kpi-ico">✅</div><div class="kpi-val" id="k-present">—</div><div class="kpi-lbl">Present Days</div></div>
+          <div class="kpi amber"><div class="kpi-ico">⚠️</div><div class="kpi-val" id="k-late">—</div><div class="kpi-lbl">Late Arrivals</div></div>
+          <div class="kpi rose"><div class="kpi-ico">❌</div><div class="kpi-val" id="k-absent">—</div><div class="kpi-lbl">Absent</div></div>
+          <div class="kpi violet"><div class="kpi-ico">📊</div><div class="kpi-val" id="k-rate">—%</div><div class="kpi-lbl">Attendance Rate</div></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+          <div class="f-search"><span>🔍</span><input type="text" id="att-search" placeholder="Search name or ID..." oninput="renderAttTable()"/></div>
+          <select class="f-sel" id="att-dept-filter" onchange="renderAttTable()">
+            <option value="All">All Departments</option>
+            <option>Management</option><option>Front Office</option><option>Kitchen</option>
+            <option>Service</option><option>HR & Admin</option><option>Security</option>
+          </select>
+          <select class="f-sel" id="att-late-filter" onchange="renderAttTable()">
+            <option value="All">All Status</option>
+            <option value="On Time">On Time</option>
+            <option value="Late">Late</option>
+            <option value="Absent">Absent</option>
+          </select>
+        </div>
+
+        <div class="att-table-wrap">
+          <table class="att-table">
+            <thead>
+              <tr>
+                <th>Employee</th><th>Date</th><th>Check-In</th><th>Check-Out</th>
+                <th>Hours</th><th>Type</th><th>Late Status</th><th>GPS / Location</th>
+              </tr>
+            </thead>
+            <tbody id="att-tbody">
+              <tr><td colspan="8"><div class="loading-st"><div class="spinner"></div>Loading...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 2: EMPLOYEE CHECK-IN ═══ -->
+      <div class="tab-panel" id="tab-att-employee">
+        <div class="page-hd">
+          <div>
+            <div class="ph-tag">Employee Self-Service</div>
+            <div class="ph-title">📍 Smart Attendance</div>
+            <div class="ph-sub">Check in via GPS location or QR code scan</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <!-- Demo role selector -->
+            <select class="f-sel" id="demo-emp-select" onchange="loadTodayStatus()">
+              <option value="VLT-001">VLT-001 — Karim Hossain</option>
+              <option value="VLT-002">VLT-002 — Nusrat Jahan</option>
+              <option value="VLT-003">VLT-003 — Arif Rahman</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="checkin-layout">
+          <!-- Today status -->
+          <div class="status-card">
+            <div class="status-ring" id="status-ring">
+              <span class="status-emoji" id="status-emoji">⏳</span>
+            </div>
+            <div class="status-label" id="status-label">Loading...</div>
+            <div class="status-time" id="status-time">—</div>
+            <span class="status-badge" id="status-badge" style="display:none"></span>
+
+            <div style="width:100%;background:var(--surface);border-radius:var(--r-sm);
+              border:1px solid var(--border);padding:14px;text-align:left;margin-top:4px">
+              <div style="font-size:10.5px;font-weight:800;text-transform:uppercase;
+                letter-spacing:.6px;color:var(--text3);margin-bottom:10px">Today's Summary</div>
+              <div style="display:flex;flex-direction:column;gap:8px" id="today-summary">
+                <div style="display:flex;justify-content:space-between;font-size:12.5px">
+                  <span style="color:var(--text2)">Check-In</span>
+                  <span class="td-mono" id="s-checkin">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12.5px">
+                  <span style="color:var(--text2)">Check-Out</span>
+                  <span class="td-mono" id="s-checkout">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12.5px">
+                  <span style="color:var(--text2)">Hours Worked</span>
+                  <span class="td-mono" id="s-hours">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:12.5px">
+                  <span style="color:var(--text2)">Status</span>
+                  <span id="s-late">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Check-in methods -->
+          <div class="method-card">
+            <div style="font-size:13px;font-weight:800;color:var(--text)">Mark Attendance</div>
+
+            <!-- Method tabs -->
+            <div class="method-tabs">
+              <button class="method-tab active" id="mtab-gps" onclick="switchMethod('gps')">📍 GPS</button>
+              <button class="method-tab" id="mtab-qr" onclick="switchMethod('qr')">📷 QR Scan</button>
+            </div>
+
+            <!-- GPS panel -->
+            <div class="method-panel active" id="mpanel-gps">
+              <div class="gps-map-preview" id="gps-preview" onclick="acquireGPS()">
+                <div class="gps-pulse" id="gps-pulse" style="display:none"></div>
+                <span style="font-size:28px" id="gps-map-ico">🗺️</span>
+                <div style="font-size:12px;color:var(--text2)" id="gps-map-txt">Tap to capture GPS location</div>
+                <div class="gps-coords" id="gps-coords" style="display:none"></div>
+                <div class="gps-accuracy" id="gps-acc"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text3);text-align:center;line-height:1.5">
+                📍 Your latitude & longitude will be recorded and saved with the attendance entry.
+                <br>Geofencing: <span id="geofence-status" style="color:var(--amber)">Disabled (Admin can enable)</span>
+              </div>
+            </div>
+
+            <!-- QR panel -->
+            <div class="method-panel" id="mpanel-qr">
+              <div id="qr-reader-wrap">
+                <div id="qr-reader"></div>
+                <div class="qr-overlay-text">Point camera at the QR code displayed at the venue entrance</div>
+              </div>
+              <div id="qr-result" style="display:none;background:rgba(0,229,160,0.08);
+                border:1px solid rgba(0,229,160,0.25);border-radius:var(--r-xs);
+                padding:10px 14px;font-size:12px;color:var(--emerald);text-align:center">
+                ✅ Valid QR Detected — Ready to check in!
+              </div>
+              <div style="font-size:11px;color:var(--text3);text-align:center;line-height:1.5">
+                📷 Scan the static QR code posted at the Vault entrance.
+                <br>Generate your QR at: <a href="https://www.qr-code-generator.com/" target="_blank" style="color:var(--cyan)">qr-code-generator.com</a>
+              </div>
+            </div>
+
+            <!-- Check-in / Check-out buttons -->
+            <button class="btn-checkin in" id="btn-checkin" onclick="doCheckIn()">
+              <div class="btn-spinner"></div>
+              <span>📍 Check In Now</span>
+            </button>
+            <button class="btn-checkin out" id="btn-checkout" onclick="doCheckOut()" style="display:none">
+              <div class="btn-spinner"></div>
+              <span>🚪 Check Out Now</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- My attendance history -->
+        <div style="margin-top:4px">
+          <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:14px">
+            📋 My Recent Attendance
+          </div>
+          <div class="att-table-wrap">
+            <table class="att-table">
+              <thead>
+                <tr><th>Date</th><th>Check-In</th><th>Check-Out</th><th>Hours</th><th>Type</th><th>Status</th></tr>
+              </thead>
+              <tbody id="emp-att-tbody">
+                <tr><td colspan="6"><div class="loading-st"><div class="spinner"></div>Loading...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 3: LEAVE MANAGEMENT ═══ -->
+      <div class="tab-panel" id="tab-att-leaves">
+        <div class="page-hd">
+          <div>
+            <div class="ph-tag">Operations</div>
+            <div class="ph-title">🌴 Leave Management</div>
+            <div class="ph-sub">Apply for leave · approve or reject requests</div>
+          </div>
+        </div>
+
+        <!-- Apply Leave Form -->
+        <div class="leave-form-card">
+          <div class="lf-title">➕ New Leave Application</div>
+          <div class="lf-grid three">
+            <div class="fg">
+              <label class="fl">Employee</label>
+              <select class="fs" id="lv-emp">
+                <option value="VLT-001">VLT-001 — Karim Hossain</option>
+                <option value="VLT-002">VLT-002 — Nusrat Jahan</option>
+                <option value="VLT-003">VLT-003 — Arif Rahman</option>
+                <option value="VLT-004">VLT-004 — Sadia Islam</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="fl">Leave Type</label>
+              <select class="fs" id="lv-type">
+                <option value="Casual">Casual Leave</option>
+                <option value="Medical">Medical Leave</option>
+                <option value="Annual">Annual Leave</option>
+                <option value="Emergency">Emergency Leave</option>
+                <option value="Unpaid">Unpaid Leave</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="fl">Start Date</label>
+              <input type="date" class="fi" id="lv-start" onchange="calcLeaveDays()"/>
+            </div>
+            <div class="fg">
+              <label class="fl">End Date</label>
+              <input type="date" class="fi" id="lv-end" onchange="calcLeaveDays()"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Duration</label>
+              <div class="fi" style="background:var(--elevated);cursor:default;color:var(--text2)">
+                <span id="lv-days-display">Select dates above</span>
+              </div>
+            </div>
+            <div class="fg span2" style="grid-column:span 3">
+              <label class="fl">Reason / Notes</label>
+              <textarea class="fta" id="lv-reason" placeholder="Describe the reason for leave..."></textarea>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:16px;gap:8px">
+            <button class="btn-g" onclick="clearLeaveForm()">Clear</button>
+            <button class="btn-p" onclick="submitLeave()">📨 Submit Leave Application</button>
+          </div>
+        </div>
+
+        <!-- Leave filters -->
+        <div class="filter-row">
+          <div class="f-search"><span>🔍</span><input type="text" id="lv-search" placeholder="Search employee name..." oninput="renderLeaveCards()"/></div>
+          <select class="f-sel" id="lv-status-filter" onchange="renderLeaveCards()">
+            <option value="All">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <select class="f-sel" id="lv-month-filter" onchange="loadLeaves()">
+            <!-- populated by JS -->
+          </select>
+        </div>
+
+        <div id="leave-container">
+          <div class="loading-st"><div class="spinner"></div>Loading leaves...</div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 4: MONTHLY CALENDAR ═══ -->
+      <div class="tab-panel" id="tab-att-calendar">
+        <div class="page-hd">
+          <div>
+            <div class="ph-tag">Overview</div>
+            <div class="ph-title">📅 Monthly Attendance Calendar</div>
+            <div class="ph-sub">Visual attendance heatmap for selected employee</div>
+          </div>
+          <select class="f-sel" id="cal-emp-select" onchange="renderCalendar()">
+            <option value="VLT-001">VLT-001 — Karim Hossain</option>
+            <option value="VLT-002">VLT-002 — Nusrat Jahan</option>
+            <option value="VLT-003">VLT-003 — Arif Rahman</option>
+            <option value="VLT-004">VLT-004 — Sadia Islam</option>
+            <option value="VLT-005">VLT-005 — Tanvir Ahmed</option>
+          </select>
+        </div>
+
+        <div class="calendar-wrap">
+          <div class="cal-hd">
+            <div class="cal-title" id="cal-title-txt">Attendance Heatmap</div>
+            <div class="cal-nav">
+              <button class="cal-nav-btn" onclick="calNav(-1)">←</button>
+              <div class="cal-month" id="cal-month-lbl">—</div>
+              <button class="cal-nav-btn" onclick="calNav(1)">→</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="cal-grid">
+            <!-- Built by JS -->
+          </div>
+          <div class="cal-legend">
+            <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(0,229,160,0.3)"></div>Present</div>
+            <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(255,179,0,0.3)"></div>Late</div>
+            <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(255,77,109,0.2)"></div>Absent</div>
+            <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(79,125,255,0.1)"></div>Weekend</div>
+            <div class="cal-leg-item"><div class="cal-leg-dot" style="border:1px solid var(--cyan)"></div>Today</div>
+          </div>
+        </div>
+
+        <!-- Calendar summary stats -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          <div class="kpi emerald"><div class="kpi-ico">✅</div><div class="kpi-val" id="cs-present">—</div><div class="kpi-lbl">Days Present</div></div>
+          <div class="kpi amber"><div class="kpi-ico">⚠️</div><div class="kpi-val" id="cs-late">—</div><div class="kpi-lbl">Late Days</div></div>
+          <div class="kpi rose"><div class="kpi-ico">❌</div><div class="kpi-val" id="cs-absent">—</div><div class="kpi-lbl">Absent Days</div></div>
+          <div class="kpi cyan"><div class="kpi-ico">📊</div><div class="kpi-val" id="cs-rate">—%</div><div class="kpi-lbl">Attendance Rate</div></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════════
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbyMoQK1DmYRiBCLt6aiX9QO1gmZ3nOTosFa-dv9g0dm1PmJMQ6TH_M_dP_1tmT4Dfpn/exec';
+const MOCK_MODE = false; // set false when GAS is live
+const LATE_HOUR = 9, LATE_MIN = 15; // must match Code.gs
+
+// ═══════════════════════════════════════════════════════════════
+//  MOCK DATA
+// ═══════════════════════════════════════════════════════════════
+const MOCK_EMPLOYEES_LIST = [
+  { id:'VLT-001', name:'Mohammad Karim Hossain', dept:'Service' },
+  { id:'VLT-002', name:'Nusrat Jahan Mitu',      dept:'HR & Admin' },
+  { id:'VLT-003', name:'Arif Rahman Rony',        dept:'Kitchen' },
+  { id:'VLT-004', name:'Sadia Islam Shova',       dept:'Front Office' },
+  { id:'VLT-005', name:'Tanvir Ahmed Tuhin',      dept:'Security' },
+];
+
+// Seed 30 days of mock attendance
+function seedMockAttendance() {
+  const records = [];
+  const today = new Date();
+  MOCK_EMPLOYEES_LIST.forEach(emp => {
+    for (let d = 29; d >= 0; d--) {
+      const dt = new Date(today); dt.setDate(today.getDate() - d);
+      const dow = dt.getDay(); // 0=Sun, 6=Sat
+      if (dow === 5 || dow === 6) continue; // skip weekends (Fri/Sat for BD)
+      const rand = Math.random();
+      if (rand < 0.08) continue; // 8% absent
+      const isLate   = rand > 0.75;
+      const h        = isLate ? 9 + Math.floor(Math.random()*2) : 8 + Math.floor(Math.random()*1);
+      const m        = isLate ? 15 + Math.floor(Math.random()*45) : Math.floor(Math.random()*59);
+      const checkIn  = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`;
+      const outH     = h + 8 + Math.floor(Math.random()*2);
+      const checkOut = `${String(Math.min(outH,23)).padStart(2,'0')}:${String(Math.floor(Math.random()*59)).padStart(2,'0')}:00`;
+      const lateStatus = (h > LATE_HOUR || (h === LATE_HOUR && m > LATE_MIN)) ? 'Late' : 'On Time';
+      const types    = ['GPS','QR','GPS','GPS','Manual'];
+      records.push({
+        RecordID: 'ATT_'+emp.id+'_'+d,
+        EmpID: emp.id,
+        Date: dt.toISOString().split('T')[0],
+        CheckInTime: checkIn,
+        CheckOutTime: checkOut,
+        LatLong: `23.${(7940+Math.floor(Math.random()*10))}, 90.${(4040+Math.floor(Math.random()*10))}`,
+        AttendanceType: types[Math.floor(Math.random()*types.length)],
+        LateStatus: lateStatus,
+        empName: emp.name,
+        dept: emp.dept
+      });
+    }
+  });
+  // Today's entry for VLT-001
+  records.push({
+    RecordID:'ATT_TODAY', EmpID:'VLT-001',
+    Date: today.toISOString().split('T')[0],
+    CheckInTime:'09:02:14',CheckOutTime:'',
+    LatLong:'23.7942, 90.4044',AttendanceType:'GPS',LateStatus:'On Time',
+    empName:'Mohammad Karim Hossain',dept:'Service'
+  });
+  return records;
+}
+
+let MOCK_ATT  = seedMockAttendance();
+let MOCK_LEAVES = [
+  { LeaveID:'LV_001', EmpID:'VLT-002', StartDate:'2025-03-10', EndDate:'2025-03-12', Reason:'[Medical] Fever and flu. Doctor advised 3 days rest.', Status:'Approved', empName:'Nusrat Jahan Mitu', dept:'HR & Admin' },
+  { LeaveID:'LV_002', EmpID:'VLT-003', StartDate:'2025-03-20', EndDate:'2025-03-20', Reason:'[Casual] Personal work at home district.', Status:'Pending',  empName:'Arif Rahman Rony',   dept:'Kitchen' },
+  { LeaveID:'LV_003', EmpID:'VLT-004', StartDate:'2025-03-05', EndDate:'2025-03-06', Reason:'[Casual] Family function.', Status:'Rejected', empName:'Sadia Islam Shova',   dept:'Front Office' },
+  { LeaveID:'LV_004', EmpID:'VLT-001', StartDate:'2025-04-01', EndDate:'2025-04-03', Reason:'[Annual] Annual family trip.', Status:'Pending',  empName:'Mohammad Karim Hossain',dept:'Service' },
+  { LeaveID:'LV_005', EmpID:'VLT-005', StartDate:'2025-02-15', EndDate:'2025-02-15', Reason:'[Emergency] Family emergency.', Status:'Approved', empName:'Tanvir Ahmed Tuhin',  dept:'Security' },
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let STATE = {
+  allAttendance: [],
+  allLeaves:     [],
+  todayStatus:   null,
+  gpsCoords:     null,
+  qrValidated:   false,
+  calYear:       new Date().getFullYear(),
+  calMonth:      new Date().getMonth(),
+  qrScanner:     null,
+  qrRunning:     false,
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════
+const Toast = {
+  _b: document.getElementById('toastbox'),
+  _i: { s:'✅', e:'❌', i:'ℹ️', w:'⚠️' },
+  show(msg, type='i', dur=4000) {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${this._i[type]}</span><span>${msg}</span>`;
+    this._b.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('out');
+      el.addEventListener('animationend', ()=>el.remove(), {once:true});
+    }, dur);
+  },
+  s(m,d){this.show(m,'s',d);}, e(m,d){this.show(m,'e',d);},
+  i(m,d){this.show(m,'i',d);}, w(m,d){this.show(m,'w',d);}
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  API
+// ═══════════════════════════════════════════════════════════════
+const API = {
+  async call(action, payload={}) {
+    if (MOCK_MODE) return this.mock(action, payload);
+    const res = await fetch(GAS_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action, ...payload })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  },
+
+  mock(action, payload) {
+    return new Promise(resolve => setTimeout(() => {
+      switch(action) {
+        case 'getTodayStatus': {
+          const today = new Date().toISOString().split('T')[0];
+          const rec = MOCK_ATT.find(r => r.EmpID===payload.empId && r.Date===today);
+          if (!rec)    resolve({ success:true, status:'not_checked_in', record:null });
+          else if (!rec.CheckOutTime) resolve({ success:true, status:'checked_in', record:rec });
+          else         resolve({ success:true, status:'checked_out', record:rec });
+          break;
+        }
+        case 'checkIn': {
+          const today = new Date().toISOString().split('T')[0];
+          const now   = new Date().toTimeString().slice(0,8);
+          const h=parseInt(now),m=parseInt(now.split(':')[1]);
+          const lateStatus = (h>LATE_HOUR||(h===LATE_HOUR&&m>LATE_MIN))?'Late':'On Time';
+          const rec = { RecordID:'ATT_LIVE', EmpID:payload.empId, Date:today,
+            CheckInTime:now, CheckOutTime:'', LatLong:payload.latLong||'',
+            AttendanceType:payload.attendanceType||'GPS', LateStatus:lateStatus };
+          MOCK_ATT.push(rec);
+          resolve({ success:true, message:`Check-in recorded at ${now}`, checkInTime:now, lateStatus, record:rec });
+          break;
+        }
+        case 'checkOut': {
+          const today = new Date().toISOString().split('T')[0];
+          const now   = new Date().toTimeString().slice(0,8);
+          const idx = MOCK_ATT.findIndex(r=>r.EmpID===payload.empId&&r.Date===today&&!r.CheckOutTime);
+          if (idx<0) { resolve({success:false,message:'No open check-in found.'}); break; }
+          MOCK_ATT[idx].CheckOutTime = now;
+          const inParts = MOCK_ATT[idx].CheckInTime.split(':').map(Number);
+          const outParts= now.split(':').map(Number);
+          const mins = (outParts[0]*60+outParts[1])-(inParts[0]*60+inParts[1]);
+          const hw = `${Math.floor(mins/60)}h ${mins%60}m`;
+          resolve({ success:true, message:`Check-out at ${now}. Hours: ${hw}`, checkOutTime:now, hoursWorked:hw });
+          break;
+        }
+        case 'getAttendance': {
+          let recs = [...MOCK_ATT];
+          if (payload.empId && payload.empId!=='All') recs=recs.filter(r=>r.EmpID===payload.empId);
+          if (payload.department && payload.department!=='All') recs=recs.filter(r=>r.dept===payload.department);
+          recs.sort((a,b)=>new Date(b.Date)-new Date(a.Date));
+          const present=recs.filter(r=>r.CheckInTime).length;
+          const late=recs.filter(r=>r.LateStatus==='Late').length;
+          const absent=recs.filter(r=>r.LateStatus==='Absent').length;
+          resolve({ success:true, records:recs, total:recs.length, present, late, absent });
+          break;
+        }
+        case 'markManualAttendance': {
+          const lateStatus = payload.checkIn ? computeLate(payload.checkIn) : 'Absent';
+          const emp = MOCK_EMPLOYEES_LIST.find(e=>e.id===payload.empId);
+          MOCK_ATT.push({
+            RecordID:'ATT_M_'+Date.now(), EmpID:payload.empId, Date:payload.date,
+            CheckInTime:payload.checkIn||'', CheckOutTime:payload.checkOut||'',
+            LatLong:'', AttendanceType:payload.type||'Manual', LateStatus:lateStatus,
+            empName: emp?emp.name:payload.empId, dept: emp?emp.dept:''
+          });
+          resolve({ success:true, message:'Manual attendance marked.' });
+          break;
+        }
+        case 'applyLeave': {
+          const emp = MOCK_EMPLOYEES_LIST.find(e=>e.id===payload.empId);
+          const start=new Date(payload.startDate), end=new Date(payload.endDate);
+          const days = Math.ceil((end-start)/(1000*60*60*24))+1;
+          MOCK_LEAVES.unshift({
+            LeaveID:'LV_'+Date.now(), EmpID:payload.empId,
+            StartDate:payload.startDate, EndDate:payload.endDate,
+            Reason:`[${payload.leaveType}] ${payload.reason}`,
+            Status:'Pending',
+            empName: emp?emp.name:payload.empId, dept: emp?emp.dept:''
+          });
+          resolve({ success:true, message:`Leave applied for ${days} day(s). Awaiting HR approval.`, days });
+          break;
+        }
+        case 'getLeaves': {
+          let lvs = [...MOCK_LEAVES];
+          if (payload.status && payload.status!=='All') lvs=lvs.filter(l=>l.Status===payload.status);
+          const search = payload.search?.toLowerCase();
+          if (search) lvs=lvs.filter(l=>l.empName?.toLowerCase().includes(search)||l.EmpID.includes(search));
+          lvs.sort((a,b)=>new Date(b.StartDate)-new Date(a.StartDate));
+          resolve({ success:true, leaves:lvs, total:lvs.length,
+            pending:lvs.filter(l=>l.Status==='Pending').length,
+            approved:lvs.filter(l=>l.Status==='Approved').length,
+            rejected:lvs.filter(l=>l.Status==='Rejected').length });
+          break;
+        }
+        case 'updateLeaveStatus': {
+          const idx=MOCK_LEAVES.findIndex(l=>l.LeaveID===payload.leaveId);
+          if (idx>=0) MOCK_LEAVES[idx].Status=payload.status;
+          resolve({ success:true, message:`Leave ${payload.status.toLowerCase()}.` });
+          break;
+        }
+        case 'deleteLeave': {
+          const idx=MOCK_LEAVES.findIndex(l=>l.LeaveID===payload.leaveId);
+          if (idx>=0) MOCK_LEAVES.splice(idx,1);
+          resolve({ success:true, message:'Leave cancelled.' });
+          break;
+        }
+        case 'runAutoLateMark': {
+          resolve({ success:true, message:'Auto late-mark complete (mock). 2 absent records created.', marked:2 });
+          break;
+        }
+        default:
+          resolve({ success:false, message:'Unknown action: '+action });
+      }
+    }, 400));
+  }
+};
+
+function computeLate(timeStr) {
+  const [h,m] = timeStr.split(':').map(Number);
+  return (h>LATE_HOUR||(h===LATE_HOUR&&m>LATE_MIN)) ? 'Late' : 'On Time';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TAB ROUTING
+// ═══════════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const tab = document.querySelector(`.tab[onclick="switchTab('${name}')"]`);
+  const panel = document.getElementById(`tab-${name}`);
+  if (tab) tab.classList.add('active');
+  if (panel) panel.classList.add('active');
+
+  // Stop QR scanner when leaving that tab
+  if (name !== 'att-employee') stopQRScanner();
+  if (name === 'att-calendar') renderCalendar();
+  if (name === 'att-leaves')   loadLeaves();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADMIN ATTENDANCE
+// ═══════════════════════════════════════════════════════════════
+async function loadAdminAttendance() {
+  try {
+    const res = await API.call('getAttendance', { role:'Admin', department:'All' });
+    if (!res.success) throw new Error(res.message);
+    STATE.allAttendance = res.records;
+    const absent = res.records.filter(r=>r.LateStatus==='Absent').length;
+    document.getElementById('k-total').textContent   = res.total;
+    document.getElementById('k-present').textContent = res.present;
+    document.getElementById('k-late').textContent    = res.late;
+    document.getElementById('k-absent').textContent  = absent;
+    const rate = res.total>0 ? Math.round(res.present/res.total*100) : 0;
+    document.getElementById('k-rate').textContent = rate+'%';
+    renderAttTable();
+  } catch(err) { Toast.e(err.message); }
+}
+
+function renderAttTable() {
+  const search     = document.getElementById('att-search').value.toLowerCase();
+  const deptFilter = document.getElementById('att-dept-filter').value;
+  const lateFilter = document.getElementById('att-late-filter').value;
+
+  let recs = STATE.allAttendance.filter(r => {
+    const matchSearch = !search ||
+      (r.empName||'').toLowerCase().includes(search) ||
+      r.EmpID.toLowerCase().includes(search);
+    const matchDept = deptFilter==='All' || r.dept===deptFilter;
+    const matchLate = lateFilter==='All' || r.LateStatus===lateFilter;
+    return matchSearch && matchDept && matchLate;
+  });
+
+  const tbody = document.getElementById('att-tbody');
+  if (!recs.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+      <div class="empty-ico">📋</div><div class="empty-title">No records found</div>
+      <div class="empty-sub">Try adjusting your filters.</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = recs.slice(0,100).map(r => {
+    const inTime  = r.CheckInTime  || '—';
+    const outTime = r.CheckOutTime || '—';
+    const hours   = (r.CheckInTime&&r.CheckOutTime) ? calcHoursWorked(r.CheckInTime,r.CheckOutTime) : '—';
+    const emp = MOCK_EMPLOYEES_LIST.find(e=>e.id===r.EmpID);
+    const color = DEPT_COLORS[r.dept]||'#7a9bc8';
+    const init  = (r.empName||r.EmpID).split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        <div style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;
+          justify-content:center;font-size:11px;font-weight:800;background:${color}22;
+          color:${color};border:1px solid ${color}33;font-family:'JetBrains Mono',monospace;flex-shrink:0">${init}</div>
+        <div><div class="td-name">${r.empName||r.EmpID}</div>
+        <div style="font-size:10px;color:var(--text3)">${r.EmpID} · ${r.dept||''}</div></div>
+      </div></td>
+      <td class="td-mono">${r.Date}</td>
+      <td class="td-mono" style="color:${r.CheckInTime?'var(--emerald)':'var(--text3)'}">${inTime}</td>
+      <td class="td-mono" style="color:${r.CheckOutTime?'var(--indigo)':'var(--text3)'}">${outTime}</td>
+      <td><span class="hours-chip">${hours}</span></td>
+      <td><span class="att-type-badge ${r.AttendanceType}">${r.AttendanceType}</span></td>
+      <td><span class="late-badge ${r.LateStatus}">${r.LateStatus}</span></td>
+      <td style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;max-width:120px;overflow:hidden;text-overflow:ellipsis">
+        ${r.LatLong ? '📍 '+r.LatLong : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function calcHoursWorked(inT, outT) {
+  try {
+    const [ih,im]=inT.split(':').map(Number);
+    const [oh,om]=outT.split(':').map(Number);
+    const mins=(oh*60+om)-(ih*60+im);
+    if(mins<0) return '—';
+    return `${Math.floor(mins/60)}h ${mins%60}m`;
+  } catch { return '—'; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EMPLOYEE CHECK-IN / OUT
+// ═══════════════════════════════════════════════════════════════
+async function loadTodayStatus() {
+  const empId = document.getElementById('demo-emp-select').value;
+  try {
+    const res = await API.call('getTodayStatus', { empId });
+    STATE.todayStatus = res;
+    updateStatusUI(res);
+    loadEmpAttHistory(empId);
+  } catch(err) { Toast.e(err.message); }
+}
+
+function updateStatusUI(res) {
+  const ring    = document.getElementById('status-ring');
+  const emoji   = document.getElementById('status-emoji');
+  const label   = document.getElementById('status-label');
+  const time    = document.getElementById('status-time');
+  const badge   = document.getElementById('status-badge');
+  const btnIn   = document.getElementById('btn-checkin');
+  const btnOut  = document.getElementById('btn-checkout');
+
+  ring.className = 'status-ring';
+
+  if (res.status === 'not_checked_in') {
+    ring.classList.add('not-in');
+    emoji.textContent = '⏳';
+    label.textContent = 'Not Checked In';
+    time.textContent  = 'Tap below to check in';
+    badge.style.display = 'none';
+    btnIn.style.display  = '';
+    btnOut.style.display = 'none';
+    document.getElementById('s-checkin').textContent  = '—';
+    document.getElementById('s-checkout').textContent = '—';
+    document.getElementById('s-hours').textContent    = '—';
+    document.getElementById('s-late').innerHTML       = '—';
+
+  } else if (res.status === 'checked_in') {
+    ring.classList.add('checked-in');
+    emoji.textContent = '✅';
+    label.textContent = 'Checked In';
+    time.textContent  = res.record.CheckInTime;
+    badge.style.display = '';
+    badge.className = `status-badge ${res.record.LateStatus==='Late'?'late':'ontime'}`;
+    badge.textContent = res.record.LateStatus;
+    btnIn.style.display  = 'none';
+    btnOut.style.display = '';
+    document.getElementById('s-checkin').textContent  = res.record.CheckInTime;
+    document.getElementById('s-checkout').textContent = '— (still in)';
+    document.getElementById('s-hours').textContent    = 'Still working...';
+    document.getElementById('s-late').innerHTML =
+      `<span class="late-badge ${res.record.LateStatus}">${res.record.LateStatus}</span>`;
+
+  } else if (res.status === 'checked_out') {
+    ring.classList.add('checked-out');
+    emoji.textContent = '🏁';
+    label.textContent = 'Day Complete';
+    time.textContent  = `${res.record.CheckInTime} → ${res.record.CheckOutTime}`;
+    badge.style.display = '';
+    badge.className = `status-badge ${res.record.LateStatus==='Late'?'late':'ontime'}`;
+    badge.textContent = res.record.LateStatus;
+    btnIn.style.display  = 'none';
+    btnOut.style.display = 'none';
+    document.getElementById('s-checkin').textContent  = res.record.CheckInTime;
+    document.getElementById('s-checkout').textContent = res.record.CheckOutTime;
+    document.getElementById('s-hours').textContent    = calcHoursWorked(res.record.CheckInTime, res.record.CheckOutTime);
+    document.getElementById('s-late').innerHTML =
+      `<span class="late-badge ${res.record.LateStatus}">${res.record.LateStatus}</span>`;
+  }
+}
+
+async function loadEmpAttHistory(empId) {
+  const res = await API.call('getAttendance', { empId, role:'Employee', requestingEmpId:empId });
+  const tbody = document.getElementById('emp-att-tbody');
+  if (!res.success||!res.records.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-ico">📋</div>
+      <div class="empty-title">No attendance records</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = res.records.slice(0,15).map(r => `<tr>
+    <td class="td-mono">${r.Date}</td>
+    <td class="td-mono" style="color:var(--emerald)">${r.CheckInTime||'—'}</td>
+    <td class="td-mono" style="color:var(--indigo)">${r.CheckOutTime||'—'}</td>
+    <td><span class="hours-chip">${r.CheckInTime&&r.CheckOutTime?calcHoursWorked(r.CheckInTime,r.CheckOutTime):'—'}</span></td>
+    <td><span class="att-type-badge ${r.AttendanceType}">${r.AttendanceType}</span></td>
+    <td><span class="late-badge ${r.LateStatus}">${r.LateStatus}</span></td>
+  </tr>`).join('');
+}
+
+// ── GPS ──────────────────────────────────────────────────────
+function acquireGPS() {
+  const preview = document.getElementById('gps-preview');
+  const ico     = document.getElementById('gps-map-ico');
+  const txt     = document.getElementById('gps-map-txt');
+  const pulse   = document.getElementById('gps-pulse');
+  const coords  = document.getElementById('gps-coords');
+  const acc     = document.getElementById('gps-acc');
+
+  ico.textContent = '📡'; txt.textContent = 'Acquiring GPS signal...';
+  pulse.style.display = '';
+
+  if (!navigator.geolocation) {
+    Toast.w('Geolocation not supported. Using mock coords.');
+    setGPSResult(23.7942, 90.4044, 15, preview, coords, acc, txt, ico, pulse);
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => setGPSResult(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy, preview, coords, acc, txt, ico, pulse),
+    err => {
+      pulse.style.display='none'; ico.textContent='⚠️';
+      txt.textContent='GPS unavailable — using mock coords.';
+      setGPSResult(23.7942, 90.4044, 50, preview, coords, acc, txt, ico, pulse);
+    },
+    { enableHighAccuracy:true, timeout:8000 }
+  );
+}
+
+function setGPSResult(lat, lng, acc, preview, coordsEl, accEl, txtEl, icoEl, pulse) {
+  STATE.gpsCoords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  pulse.style.display = 'none';
+  icoEl.textContent = '✅';
+  txtEl.textContent = 'GPS Acquired!';
+  coordsEl.style.display = '';
+  coordsEl.textContent = `📍 ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  accEl.textContent = `Accuracy: ±${Math.round(acc)}m`;
+  preview.classList.add('acquired');
+  Toast.s('GPS location captured ✅');
+}
+
+// ── QR Scanner ───────────────────────────────────────────────
+function switchMethod(method) {
+  document.querySelectorAll('.method-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.method-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`mtab-${method}`).classList.add('active');
+  document.getElementById(`mpanel-${method}`).classList.add('active');
+
+  if (method==='qr') startQRScanner();
+  else stopQRScanner();
+}
+
+function startQRScanner() {
+  if (STATE.qrRunning) return;
+  try {
+    STATE.qrScanner = new Html5Qrcode('qr-reader');
+    STATE.qrScanner.start(
+      { facingMode:'environment' },
+      { fps:10, qrbox:{width:200, height:200} },
+      qrCode => {
+        try {
+          const data = JSON.parse(qrCode);
+          if (data.type==='HRMIS_CHECKIN') {
+            STATE.qrValidated = true;
+            document.getElementById('qr-result').style.display='';
+            Toast.s('Valid QR Code detected! ✅');
+            stopQRScanner();
+          } else { Toast.w('Invalid QR Code.'); }
+        } catch { Toast.w('Not a valid HRMIS QR Code.'); }
+      },
+      err => {} // silent errors
+    );
+    STATE.qrRunning = true;
+  } catch(err) {
+    // Camera permission denied — demo mode
+    document.getElementById('qr-result').innerHTML =
+      '📷 Camera access denied or unavailable.<br><span style="font-size:11px;color:var(--text3)">In production, scan the QR code at the entrance.</span>';
+    document.getElementById('qr-result').style.display='';
+    Toast.w('Camera unavailable — QR demo mode. Check-in will still work.');
+    STATE.qrValidated = true; // allow in demo
+  }
+}
+
+function stopQRScanner() {
+  if (STATE.qrScanner && STATE.qrRunning) {
+    STATE.qrScanner.stop().catch(()=>{});
+    STATE.qrRunning = false;
+  }
+}
+
+// ── Check In / Out ───────────────────────────────────────────
+async function doCheckIn() {
+  const empId = document.getElementById('demo-emp-select').value;
+  const activeMethod = document.getElementById('mtab-gps').classList.contains('active') ? 'gps' : 'qr';
+
+  if (activeMethod==='gps' && !STATE.gpsCoords) {
+    Toast.w('Please capture your GPS location first.');
+    return;
+  }
+  if (activeMethod==='qr' && !STATE.qrValidated) {
+    Toast.w('Please scan the QR code first.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-checkin');
+  btn.classList.add('loading'); btn.disabled=true;
+
+  try {
+    const res = await API.call('checkIn', {
+      empId, role:'Employee', requestingEmpId:empId,
+      latLong: STATE.gpsCoords||'',
+      attendanceType: activeMethod==='gps' ? 'GPS' : 'QR'
+    });
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    await loadTodayStatus();
+    loadAdminAttendance();
+  } catch(err) { Toast.e(err.message); }
+  finally { btn.classList.remove('loading'); btn.disabled=false; }
+}
+
+async function doCheckOut() {
+  const empId = document.getElementById('demo-emp-select').value;
+  const btn = document.getElementById('btn-checkout');
+  btn.classList.add('loading'); btn.disabled=true;
+
+  try {
+    const res = await API.call('checkOut', { empId, role:'Employee', requestingEmpId:empId, latLong:STATE.gpsCoords||'' });
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    await loadTodayStatus();
+    loadAdminAttendance();
+  } catch(err) { Toast.e(err.message); }
+  finally { btn.classList.remove('loading'); btn.disabled=false; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MANUAL ATTENDANCE (Admin)
+// ═══════════════════════════════════════════════════════════════
+function openManualModal() {
+  const sel = document.getElementById('m-empid');
+  if (!sel.options.length || sel.options[0].value==='') {
+    MOCK_EMPLOYEES_LIST.forEach(emp=>{
+      const o=document.createElement('option');
+      o.value=emp.id; o.textContent=`${emp.id} — ${emp.name}`;
+      sel.appendChild(o);
+    });
+  }
+  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('manual-modal').classList.add('open');
+}
+function closeManualModal() { document.getElementById('manual-modal').classList.remove('open'); }
+
+async function submitManualAttendance() {
+  const empId   = document.getElementById('m-empid').value;
+  const date    = document.getElementById('m-date').value;
+  const checkIn = document.getElementById('m-checkin').value;
+  const checkOut= document.getElementById('m-checkout').value;
+  const type    = document.getElementById('m-type').value;
+  if (!empId||!date) { Toast.w('Employee and date are required.'); return; }
+  try {
+    const res = await API.call('markManualAttendance',{ empId, date, checkIn, checkOut, type, role:'Admin' });
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    closeManualModal();
+    loadAdminAttendance();
+  } catch(err) { Toast.e(err.message); }
+}
+
+async function runAutoLateMark() {
+  try {
+    const res = await API.call('runAutoLateMark',{ role:'Admin' });
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    loadAdminAttendance();
+  } catch(err) { Toast.e(err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LEAVE MANAGEMENT
+// ═══════════════════════════════════════════════════════════════
+function calcLeaveDays() {
+  const s = document.getElementById('lv-start').value;
+  const e = document.getElementById('lv-end').value;
+  const el = document.getElementById('lv-days-display');
+  if (!s||!e) { el.textContent='Select dates above'; return; }
+  const days = Math.ceil((new Date(e)-new Date(s))/(1000*60*60*24))+1;
+  if (days<1) { el.textContent='⚠️ End date must be after start'; return; }
+  el.textContent = `${days} day${days>1?'s':''} of leave`;
+}
+
+async function submitLeave() {
+  const empId     = document.getElementById('lv-emp').value;
+  const leaveType = document.getElementById('lv-type').value;
+  const startDate = document.getElementById('lv-start').value;
+  const endDate   = document.getElementById('lv-end').value;
+  const reason    = document.getElementById('lv-reason').value.trim();
+  if (!startDate||!endDate||!reason) { Toast.w('Please fill all required fields.'); return; }
+  try {
+    const res = await API.call('applyLeave',{ empId, leaveType, startDate, endDate, reason, role:'Employee', requestingEmpId:empId });
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    clearLeaveForm();
+    loadLeaves();
+  } catch(err) { Toast.e(err.message); }
+}
+
+function clearLeaveForm() {
+  ['lv-start','lv-end','lv-reason'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('lv-days-display').textContent='Select dates above';
+}
+
+async function loadLeaves() {
+  const status = document.getElementById('lv-status-filter').value;
+  const search = document.getElementById('lv-search')?.value||'';
+  try {
+    const res = await API.call('getLeaves',{ role:'Admin', status, search });
+    if (!res.success) throw new Error(res.message);
+    STATE.allLeaves = res.leaves;
+
+    // Badge
+    const badge = document.getElementById('tab-leave-badge');
+    badge.textContent = res.pending;
+    badge.style.display = res.pending > 0 ? '' : 'none';
+
+    renderLeaveCards();
+  } catch(err) { Toast.e(err.message); }
+}
+
+function renderLeaveCards() {
+  const search = document.getElementById('lv-search')?.value?.toLowerCase()||'';
+  const status = document.getElementById('lv-status-filter').value;
+  let leaves = STATE.allLeaves.filter(l=>{
+    const ms = !search || (l.empName||'').toLowerCase().includes(search)||l.EmpID.toLowerCase().includes(search);
+    const mv = status==='All'||l.Status===status;
+    return ms&&mv;
+  });
+
+  const container = document.getElementById('leave-container');
+  if (!leaves.length) {
+    container.innerHTML=`<div class="empty-state"><div class="empty-ico">🌴</div>
+      <div class="empty-title">No leave records</div>
+      <div class="empty-sub">Adjust filters or submit a new leave application above.</div></div>`;
+    return;
+  }
+
+  container.innerHTML=`<div class="leave-grid">${leaves.map(l=>{
+    const start = new Date(l.StartDate), end = new Date(l.EndDate);
+    const days  = Math.ceil((end-start)/(1000*60*60*24))+1;
+    const emp   = MOCK_EMPLOYEES_LIST.find(e=>e.id===l.EmpID);
+    const color = DEPT_COLORS[l.dept]||'#7a9bc8';
+    const init  = (l.empName||l.EmpID).split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="leave-card ${l.Status}">
+      <div class="lc-top">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:9px;display:flex;align-items:center;
+            justify-content:center;font-size:13px;font-weight:800;background:${color}22;
+            color:${color};border:1px solid ${color}33;font-family:'JetBrains Mono',monospace;flex-shrink:0">${init}</div>
+          <div>
+            <div class="lc-name">${l.empName||l.EmpID}</div>
+            <div class="lc-id">${l.EmpID} · ${l.dept||''}</div>
+          </div>
+        </div>
+        <span class="lc-status ${l.Status}">${l.Status}</span>
+      </div>
+      <div class="lc-dates">
+        <span>${l.StartDate}</span>
+        <span class="lc-arrow">→</span>
+        <span>${l.EndDate}</span>
+        <span class="lc-days">${days}d</span>
+      </div>
+      <div class="lc-reason">${l.Reason}</div>
+      <div class="lc-actions">
+        ${l.Status==='Pending'?`
+          <button class="btn-success" style="font-size:11px;padding:6px 12px" onclick="updateLeave('${l.LeaveID}','Approved')">✅ Approve</button>
+          <button class="btn-danger"  style="font-size:11px;padding:6px 12px" onclick="updateLeave('${l.LeaveID}','Rejected')">❌ Reject</button>
+        `:`<span class="lc-dept">${l.Status==='Approved'?'✅ Leave approved':'❌ Leave rejected'}</span>`}
+        <button class="btn-g" style="font-size:11px;padding:6px 10px;margin-left:auto" onclick="cancelLeave('${l.LeaveID}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function updateLeave(leaveId, status) {
+  try {
+    const res = await API.call('updateLeaveStatus',{ leaveId, status, role:'Admin' });
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    loadLeaves();
+  } catch(err) { Toast.e(err.message); }
+}
+
+async function cancelLeave(leaveId) {
+  try {
+    const res = await API.call('deleteLeave',{ leaveId, role:'Admin' });
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    loadLeaves();
+  } catch(err) { Toast.e(err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CALENDAR HEATMAP
+// ═══════════════════════════════════════════════════════════════
+let calDate = new Date();
+function calNav(dir) {
+  calDate.setMonth(calDate.getMonth()+dir);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const empId = document.getElementById('cal-emp-select').value;
+  const emp   = MOCK_EMPLOYEES_LIST.find(e=>e.id===empId);
+  const year  = calDate.getFullYear();
+  const month = calDate.getMonth();
+
+  document.getElementById('cal-month-lbl').textContent =
+    calDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  document.getElementById('cal-title-txt').textContent =
+    `${emp?emp.name:'Employee'} — Attendance Heatmap`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+
+  // Get this employee's records for this month
+  const empRecs = MOCK_ATT.filter(r => {
+    if (r.EmpID!==empId) return false;
+    const d = new Date(r.Date);
+    return d.getFullYear()===year && d.getMonth()===month;
+  });
+  const recByDate = {};
+  empRecs.forEach(r=>recByDate[r.Date]=r);
+
+  const dayHeaders = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html = dayHeaders.map(d=>`<div class="cal-day-header">${d}</div>`).join('');
+
+  // Empty cells before first
+  for (let i=0;i<firstDay;i++) html+=`<div class="cal-day empty"></div>`;
+
+  let present=0,late=0,absent=0;
+  for (let d=1;d<=daysInMonth;d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dt = new Date(year,month,d);
+    const dow = dt.getDay();
+    const isWeekend = (dow===5||dow===6); // Fri/Sat for BD
+    const isToday = dateStr===todayStr;
+    const isFuture = dt>today;
+    const rec = recByDate[dateStr];
+
+    let cls='cal-day';
+    let tip='';
+    if (isFuture)       { cls+=' future'; }
+    else if (isWeekend) { cls+=' weekend'; }
+    else if (rec) {
+      if (rec.LateStatus==='Absent') { cls+=' absent'; absent++; }
+      else if (rec.LateStatus==='Late') { cls+=' late'; late++; present++; }
+      else { cls+=' present'; present++; }
+      tip=`title="${rec.LateStatus}: ${rec.CheckInTime||'—'} → ${rec.CheckOutTime||'—'}"`;
+    } else if (!isFuture&&!isWeekend) { cls+=' absent'; absent++; }
+    if (isToday) cls+=' today';
+
+    html+=`<div class="${cls}" ${tip}>${d}</div>`;
+  }
+
+  document.getElementById('cal-grid').innerHTML=html;
+
+  const workdays = present+absent;
+  const rate = workdays>0?Math.round(present/workdays*100):0;
+  document.getElementById('cs-present').textContent=present;
+  document.getElementById('cs-late').textContent=late;
+  document.getElementById('cs-absent').textContent=absent;
+  document.getElementById('cs-rate').textContent=rate+'%';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EXPORT CSV
+// ═══════════════════════════════════════════════════════════════
+function exportAttendanceCSV() {
+  const keys = ['EmpID','empName','dept','Date','CheckInTime','CheckOutTime','LatLong','AttendanceType','LateStatus'];
+  const csv  = [keys.join(','), ...STATE.allAttendance.map(r=>
+    keys.map(k=>`"${(r[k]||'').toString().replace(/"/g,'""')}"`).join(',')
+  )].join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=`HRMIS_Attendance_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  Toast.s('Attendance CSV exported ✅');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HELPERS & BOOT
+// ═══════════════════════════════════════════════════════════════
+const DEPT_COLORS = {
+  'Management':'#00d4ff','Front Office':'#4f7dff','Kitchen':'#00e5a0',
+  'Service':'#ffb300','HR & Admin':'#a855f7','Security':'#ff4d6d','Finance':'#06b6d4'
+};
+
+function populateMonthFilters() {
+  const now = new Date();
+  const opts = [];
+  for (let i=0;i<12;i++) {
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const lbl=d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    opts.push(`<option value="${val}" ${i===0?'selected':''}>${lbl}</option>`);
+  }
+  ['admin-month-filter','lv-month-filter'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.innerHTML=opts.join('');
+  });
+}
+
+function tick(){
+  const n=new Date();
+  document.getElementById('sb-clock').textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('sb-dt').textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+setInterval(tick,1000); tick();
+
+// Boot
+populateMonthFilters();
+loadAdminAttendance();
+loadTodayStatus();
+loadLeaves();
+</script>
+</body>
+</html>

@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>HRMIS — Step 3: Employee Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+/* ═══════════════ DESIGN SYSTEM ═══════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#080f1a;--base:#0d1629;--surface:#111e35;
+  --elevated:#162241;--card:rgba(17,30,53,0.92);
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.1);--cyan-glow:rgba(0,212,255,0.22);
+  --indigo:#4f7dff;--indigo-dim:rgba(79,125,255,0.1);
+  --emerald:#00e5a0;--emerald-dim:rgba(0,229,160,0.1);
+  --amber:#ffb300;--amber-dim:rgba(255,179,0,0.1);
+  --rose:#ff4d6d;--rose-dim:rgba(255,77,109,0.1);
+  --violet:#a855f7;--violet-dim:rgba(168,85,247,0.1);
+  --text:#e8f0fe;--text2:#7a9bc8;--text3:#3d5a8a;
+  --border:rgba(79,125,255,0.1);--border2:rgba(0,212,255,0.18);
+  --r-xs:6px;--r-sm:10px;--r-md:16px;--r-lg:22px;
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+  --tx:all 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--void);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ═══════════════ LAYOUT ═══════════════ */
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+.sidebar{
+  width:230px;flex-shrink:0;background:var(--base);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sb-logo{padding:18px 18px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(79,125,255,0.25));
+  border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.sb-logo-text{font-size:13px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sb-logo-sub{font-size:9.5px;color:var(--text3);margin-top:1px}
+
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sb-sec{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;
+  color:var(--text3);padding:12px 18px 5px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 14px 9px 16px;
+  margin:1px 7px;border-radius:var(--r-sm);cursor:pointer;transition:var(--tx);
+  border:1px solid transparent;font-size:12.5px;color:var(--text2);font-weight:500}
+.sb-item:hover{background:var(--elevated);border-color:var(--border)}
+.sb-item.active{background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(79,125,255,0.07));
+  border-color:var(--border2);color:var(--text)}
+.sb-item.active::before{content:'';position:absolute;left:7px;top:50%;transform:translateY(-50%);
+  width:3px;height:60%;border-radius:2px;background:var(--cyan)}
+.sb-item{position:relative}
+.sb-item-ico{font-size:15px;width:18px;text-align:center}
+.sb-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:20px;
+  background:var(--rose);color:#fff;margin-left:auto}
+.sb-badge.g{background:var(--emerald);color:#000}
+
+.sb-foot{padding:12px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-clock{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--cyan);text-align:center}
+.sb-date-txt{font-size:10px;color:var(--text3);text-align:center;margin-top:2px}
+.btn-logout{width:100%;margin-top:10px;padding:8px;background:rgba(255,77,109,0.07);
+  border:1px solid rgba(255,77,109,0.2);border-radius:var(--r-xs);color:var(--rose);
+  font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:var(--tx);
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-logout:hover{background:rgba(255,77,109,0.14)}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* Topbar */
+.topbar{height:60px;flex-shrink:0;background:rgba(13,22,41,0.9);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;gap:14px}
+.tp-title{font-size:14px;font-weight:700;color:var(--text)}
+.tp-bread{font-size:11px;color:var(--text3);margin-top:2px}
+.tp-right{display:flex;align-items:center;gap:8px}
+.tp-search{display:flex;align-items:center;gap:8px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 12px}
+.tp-search input{background:none;border:none;outline:none;color:var(--text);
+  font-size:12.5px;font-family:inherit;width:180px}
+.tp-search input::placeholder{color:var(--text3)}
+.tp-search span{color:var(--text3);font-size:13px}
+.tp-ico{width:34px;height:34px;border-radius:var(--r-xs);background:var(--surface);
+  border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:var(--tx);font-size:14px;position:relative}
+.tp-ico:hover{border-color:var(--border2);color:var(--cyan)}
+.notif-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;
+  background:var(--rose);border:1.5px solid var(--void)}
+
+/* Content */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:22px}
+
+/* ═══════════════ TOAST ═══════════════ */
+#toastbox{position:fixed;top:14px;right:14px;z-index:9999;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:300px}
+.toast{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:var(--r-sm);
+  font-size:12.5px;font-weight:500;pointer-events:all;backdrop-filter:blur(12px);
+  animation:tin .3s cubic-bezier(0.34,1.56,0.64,1) both;box-shadow:var(--shadow)}
+.toast.s{background:rgba(0,229,160,0.12);border:1px solid rgba(0,229,160,0.3);color:#4aeab0}
+.toast.e{background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.3);color:#ff7a91}
+.toast.i{background:rgba(0,212,255,0.09);border:1px solid rgba(0,212,255,0.22);color:#7ad4ff}
+.toast.w{background:rgba(255,179,0,0.09);border:1px solid rgba(255,179,0,0.22);color:#ffd060}
+@keyframes tin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tout{to{opacity:0;transform:translateX(14px);max-height:0;padding:0;margin:0}}
+.toast.out{animation:tout .25s ease forwards}
+
+/* ═══════════════ PAGE HEADER ═══════════════ */
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:14px;flex-wrap:wrap}
+.ph-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:var(--cyan)}
+.ph-title{font-size:20px;font-weight:800;letter-spacing:-.5px;color:var(--text)}
+.ph-sub{font-size:12.5px;color:var(--text2);margin-top:3px}
+.btn-primary{padding:9px 18px;background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(79,125,255,0.18));
+  border:1px solid var(--border2);border-radius:var(--r-xs);color:var(--cyan);
+  font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--tx);
+  display:flex;align-items:center;gap:7px;white-space:nowrap}
+.btn-primary:hover{background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(79,125,255,0.28))}
+.btn-ghost{padding:9px 16px;background:var(--elevated);border:1px solid var(--border);
+  border-radius:var(--r-xs);color:var(--text2);font-size:12px;font-weight:600;
+  font-family:inherit;cursor:pointer;transition:var(--tx);display:flex;align-items:center;gap:6px}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+.btn-danger{padding:8px 14px;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.25);
+  border-radius:var(--r-xs);color:var(--rose);font-size:12px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:var(--tx)}
+.btn-danger:hover{background:rgba(255,77,109,0.16)}
+
+/* ═══════════════ FILTER BAR ═══════════════ */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.filter-select{padding:8px 12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text2);font-size:12px;font-family:inherit;
+  outline:none;cursor:pointer;transition:var(--tx)}
+.filter-select:focus{border-color:var(--border2)}
+.filter-search{display:flex;align-items:center;gap:7px;padding:8px 12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);flex:1;min-width:200px}
+.filter-search input{background:none;border:none;outline:none;color:var(--text);
+  font-size:12.5px;font-family:inherit;width:100%}
+.filter-search input::placeholder{color:var(--text3)}
+.filter-chips{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;
+  transition:var(--tx);border:1px solid var(--border);background:var(--elevated);color:var(--text2)}
+.chip.active{background:var(--cyan-dim);border-color:var(--border2);color:var(--cyan)}
+
+/* ═══════════════ STATS BAR ═══════════════ */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:16px 18px;display:flex;align-items:center;gap:14px;transition:var(--tx)}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-ico{width:38px;height:38px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:17px}
+.stat-val{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--text)}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* ═══════════════ EMPLOYEE GRID / TABLE ═══════════════ */
+.view-toggle{display:flex;gap:4px;margin-left:auto}
+.vt-btn{padding:7px 10px;background:var(--elevated);border:1px solid var(--border);
+  border-radius:var(--r-xs);color:var(--text3);cursor:pointer;transition:var(--tx);font-size:14px}
+.vt-btn.active{border-color:var(--border2);color:var(--cyan);background:var(--cyan-dim)}
+
+/* Card grid view */
+.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.emp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:20px;cursor:pointer;transition:var(--tx);position:relative;overflow:hidden}
+.emp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--cyan),transparent);opacity:0;transition:var(--tx)}
+.emp-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.emp-card:hover::before{opacity:1}
+.ec-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ec-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace}
+.ec-name{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.2}
+.ec-id{font-size:10.5px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.ec-dept{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;
+  background:var(--indigo-dim);color:var(--indigo);margin-bottom:10px;display:inline-block}
+.ec-rows{display:flex;flex-direction:column;gap:6px}
+.ec-row{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text2)}
+.ec-row-ico{font-size:12px;width:14px;text-align:center;flex-shrink:0}
+.ec-status{position:absolute;top:14px;right:14px;font-size:9.5px;font-weight:800;
+  padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.ec-status.active{background:var(--emerald-dim);color:var(--emerald)}
+.ec-status.inactive{background:var(--rose-dim);color:var(--rose)}
+.ec-status.probation{background:var(--amber-dim);color:var(--amber)}
+
+/* Table view */
+.emp-table-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--border)}
+.emp-table{width:100%;border-collapse:collapse;min-width:700px}
+.emp-table th{background:var(--surface);padding:11px 14px;text-align:left;
+  font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+.emp-table td{padding:12px 14px;font-size:12.5px;color:var(--text2);
+  border-bottom:1px solid rgba(79,125,255,0.05)}
+.emp-table tr:last-child td{border-bottom:none}
+.emp-table tr:hover td{background:rgba(0,212,255,0.03);color:var(--text)}
+.emp-table tr{cursor:pointer;transition:var(--tx)}
+.td-name{font-weight:600;color:var(--text)}
+.td-id{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text3)}
+.td-dept{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--indigo-dim);color:var(--indigo);font-weight:600}
+.td-status{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:800;text-transform:uppercase}
+.td-status.active{background:var(--emerald-dim);color:var(--emerald)}
+.td-status.inactive{background:var(--rose-dim);color:var(--rose)}
+.td-actions{display:flex;gap:6px}
+.td-btn{padding:5px 10px;border-radius:var(--r-xs);border:1px solid var(--border);
+  background:var(--elevated);color:var(--text2);font-size:11px;cursor:pointer;transition:var(--tx);font-family:inherit}
+.td-btn:hover{border-color:var(--border2);color:var(--cyan)}
+.td-btn.red{border-color:rgba(255,77,109,0.2);color:var(--rose)}
+.td-btn.red:hover{background:var(--rose-dim)}
+
+/* Empty state */
+.empty-state{padding:60px 20px;text-align:center;color:var(--text3)}
+.empty-ico{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-title{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.empty-sub{font-size:13px;line-height:1.6}
+
+/* Loading */
+.loading-state{display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:60px;color:var(--text2);font-size:13px}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--cyan);
+  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════════════ MODAL SHELL ═══════════════ */
+.modal-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--base);border:1px solid var(--border);border-radius:var(--r-lg);
+  width:100%;max-width:780px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;
+  transform:scale(0.96) translateY(16px);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 40px 80px rgba(0,0,0,0.6)}
+.modal-overlay.open .modal{transform:scale(1) translateY(0)}
+.modal-hd{padding:22px 24px 0;flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:800;color:var(--text)}
+.modal-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.modal-close{background:none;border:1px solid var(--border);border-radius:var(--r-xs);
+  color:var(--text2);cursor:pointer;font-size:15px;padding:5px 8px;transition:var(--tx)}
+.modal-close:hover{border-color:var(--rose);color:var(--rose)}
+
+/* ═══════════════ WIZARD STEPS ═══════════════ */
+.wizard-progress{padding:20px 24px 0;flex-shrink:0}
+.step-track{display:flex;align-items:center;gap:0}
+.step-node{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.step-circle{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
+  color:var(--text3);transition:var(--tx);background:var(--void);position:relative;z-index:1}
+.step-circle.done{background:var(--emerald);border-color:var(--emerald);color:#000}
+.step-circle.active{background:var(--cyan-dim);border-color:var(--cyan);color:var(--cyan);
+  box-shadow:0 0 12px rgba(0,212,255,0.3)}
+.step-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--text3);text-align:center;transition:var(--tx)}
+.step-label.active{color:var(--cyan)}
+.step-label.done{color:var(--emerald)}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 -1px;
+  position:relative;top:-13px;z-index:0;transition:background .3s ease}
+.step-line.done{background:var(--emerald)}
+
+/* Wizard body */
+.wizard-body{flex:1;overflow-y:auto;padding:20px 24px}
+.wizard-step{display:none;animation:panelIn .25s ease both}
+.wizard-step.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.wz-section{margin-bottom:22px}
+.wz-sec-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--cyan);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px}
+.wz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wz-grid.three{grid-template-columns:1fr 1fr 1fr}
+.wz-grid.one{grid-template-columns:1fr}
+
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.span2{grid-column:span 2}
+.form-label{font-size:10.5px;font-weight:700;color:var(--text2);text-transform:uppercase;
+  letter-spacing:.5px;display:flex;align-items:center;gap:4px}
+.form-label .req{color:var(--rose)}
+.form-input,.form-select,.form-textarea{
+  padding:10px 12px;background:rgba(8,15,26,0.7);border:1px solid var(--border);
+  border-radius:var(--r-xs);color:var(--text);font-size:13px;font-family:inherit;
+  outline:none;transition:var(--tx);-webkit-appearance:none;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:var(--border2);background:rgba(8,15,26,0.9);box-shadow:0 0 0 3px var(--cyan-dim)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text3)}
+.form-select option{background:var(--surface);color:var(--text)}
+.form-textarea{resize:vertical;min-height:72px}
+.form-input.error,.form-select.error{border-color:rgba(255,77,109,0.5);
+  box-shadow:0 0 0 2px rgba(255,77,109,0.1)}
+.field-err{font-size:11px;color:var(--rose);display:none;align-items:center;gap:4px}
+.field-err.show{display:flex}
+
+/* File upload zone */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r-sm);
+  padding:20px;text-align:center;cursor:pointer;transition:var(--tx);position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--border2);background:var(--cyan-dim)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-icon{font-size:28px;margin-bottom:6px}
+.uz-text{font-size:12px;font-weight:600;color:var(--text2)}
+.uz-sub{font-size:10.5px;color:var(--text3);margin-top:3px}
+.uz-preview{display:flex;align-items:center;gap:10px;margin-top:10px;
+  background:var(--elevated);border-radius:var(--r-xs);padding:8px 12px}
+.uz-prev-icon{font-size:20px}
+.uz-prev-name{font-size:11.5px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uz-prev-size{font-size:10px;color:var(--text3)}
+.uz-clear{background:none;border:none;color:var(--rose);cursor:pointer;font-size:14px;padding:2px 4px}
+.upload-progress{height:3px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;display:none}
+.upload-progress-bar{height:100%;background:var(--cyan);border-radius:2px;width:0%;transition:width .3s ease}
+.upload-progress.show{display:block}
+.upload-done-link{font-size:11px;color:var(--emerald);margin-top:6px;display:none;
+  align-items:center;gap:5px;justify-content:center}
+.upload-done-link.show{display:flex}
+
+/* Wizard footer */
+.wizard-foot{padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--base)}
+.wz-step-info{font-size:11.5px;color:var(--text3)}
+
+/* ═══════════════ VIEW EMPLOYEE MODAL ═══════════════ */
+.view-modal .modal{max-width:860px}
+.emp-profile-hd{display:flex;align-items:center;gap:18px;padding:22px 24px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(79,125,255,0.07));
+  border-bottom:1px solid var(--border);flex-shrink:0}
+.emp-profile-avatar{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;
+  justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace}
+.ep-name{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.ep-desig{font-size:13px;color:var(--text2);margin-top:2px}
+.ep-badges{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
+.ep-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+.ep-badge.dept{background:var(--indigo-dim);color:var(--indigo)}
+.ep-badge.status{background:var(--emerald-dim);color:var(--emerald)}
+.ep-badge.emp-type{background:var(--violet-dim);color:var(--violet)}
+
+.profile-tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ptab{padding:12px 16px;font-size:12px;font-weight:700;color:var(--text3);
+  cursor:pointer;border-bottom:2px solid transparent;transition:var(--tx)}
+.ptab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.ptab-panel{display:none;padding:20px 24px;overflow-y:auto}
+.ptab-panel.active{display:block;animation:panelIn .2s ease both}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.info-grid.three{grid-template-columns:1fr 1fr 1fr}
+.info-item{}
+.ii-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:3px}
+.ii-value{font-size:13px;color:var(--text);font-weight:500}
+.ii-value.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.ii-value.empty{color:var(--text3);font-style:italic}
+.info-section{margin-bottom:20px}
+.is-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--cyan);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.doc-link{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-xs);
+  color:var(--text2);font-size:12px;text-decoration:none;transition:var(--tx)}
+.doc-link:hover{border-color:var(--border2);color:var(--cyan)}
+
+/* Confirm dialog */
+.confirm-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.confirm-overlay.open{opacity:1;pointer-events:all}
+.confirm-box{background:var(--base);border:1px solid rgba(255,77,109,0.3);border-radius:var(--r-lg);
+  padding:28px;max-width:380px;width:100%;text-align:center;
+  transform:scale(0.95);transition:transform .25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:var(--shadow)}
+.confirm-overlay.open .confirm-box{transform:scale(1)}
+.confirm-ico{font-size:40px;margin-bottom:12px}
+.confirm-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px}
+.confirm-msg{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .wz-grid{grid-template-columns:1fr}
+  .wz-grid.three{grid-template-columns:1fr 1fr}
+  .form-group.span2{grid-column:span 1}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .info-grid,.info-grid.three{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .content{padding:14px}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .wz-grid.three{grid-template-columns:1fr}
+  .emp-grid{grid-template-columns:1fr}
+  .modal{max-width:100%;border-radius:var(--r-md)}
+  .info-grid,.info-grid.three{grid-template-columns:1fr}
+  .step-label{display:none}
+}
+  </style>
+</head>
+<body>
+<div id="toastbox"></div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-ico">⚠️</div>
+    <div class="confirm-title" id="confirm-title">Are you sure?</div>
+    <div class="confirm-msg" id="confirm-msg">This action cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-danger" id="confirm-ok-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Wizard Modal -->
+<div class="modal-overlay" id="wizard-overlay">
+  <div class="modal" id="wizard-modal">
+    <div class="modal-hd">
+      <div>
+        <div class="modal-title" id="wz-modal-title">➕ Add New Employee</div>
+        <div class="modal-sub" id="wz-modal-sub">Complete all 5 steps to onboard a new team member</div>
+      </div>
+      <button class="modal-close" onclick="closeWizard()">✕</button>
+    </div>
+
+    <!-- Step progress -->
+    <div class="wizard-progress">
+      <div class="step-track" id="step-track">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+    <!-- Wizard body -->
+    <div class="wizard-body" id="wizard-body">
+
+      <!-- STEP 1: Basic Info -->
+      <div class="wizard-step active" data-step="1">
+        <div class="wz-section">
+          <div class="wz-sec-title">👤 Personal Information</div>
+          <div class="wz-grid">
+            <div class="form-group">
+              <label class="form-label">Full Name (As per NID) <span class="req">*</span></label>
+              <input type="text" class="form-input" id="f-fullname" placeholder="e.g. Mohammad Karim Hossain"/>
+              <p class="field-err" id="fe-fullname">⚠️ Full name is required</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nickname</label>
+              <input type="text" class="form-input" id="f-nickname" placeholder="e.g. Karim"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Employee ID <span class="req">*</span></label>
+              <div style="display:flex;gap:6px">
+                <input type="text" class="form-input" id="f-empid" placeholder="e.g. VLT-001" style="flex:1"/>
+                <button class="btn-ghost" onclick="loadNextId()" style="padding:9px 12px;white-space:nowrap;font-size:11px">Auto 🔄</button>
+              </div>
+              <p class="field-err" id="fe-empid">⚠️ Employee ID is required</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">NID Number</label>
+              <input type="text" class="form-input" id="f-nid" placeholder="17-digit NID"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date of Birth</label>
+              <input type="date" class="form-input" id="f-dob"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select class="form-select" id="f-gender">
+                <option value="">— Select —</option>
+                <option>Male</option><option>Female</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Blood Group</label>
+              <select class="form-select" id="f-blood">
+                <option value="">— Select —</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Religion</label>
+              <select class="form-select" id="f-religion">
+                <option value="">— Select —</option>
+                <option>Islam</option><option>Hindu</option><option>Christian</option><option>Buddhist</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Marital Status</label>
+              <select class="form-select" id="f-marital">
+                <option value="">— Select —</option>
+                <option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Father's Name</label>
+              <input type="text" class="form-input" id="f-father" placeholder="Father's full name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mother's Name</label>
+              <input type="text" class="form-input" id="f-mother" placeholder="Mother's full name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">TIN Number</label>
+              <input type="text" class="form-input" id="f-tin" placeholder="Tax Identification Number"/>
+            </div>
+          </div>
+          <div class="wz-grid one" style="margin-top:12px">
+            <div class="form-group">
+              <label class="form-label">Permanent Address (As per NID)</label>
+              <textarea class="form-textarea" id="f-perm-addr" placeholder="Full permanent address..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Present Address</label>
+              <textarea class="form-textarea" id="f-present-addr" placeholder="Current living address..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Job Info -->
+      <div class="wizard-step" data-step="2">
+        <div class="wz-section">
+          <div class="wz-sec-title">💼 Employment Details</div>
+          <div class="wz-grid">
+            <div class="form-group">
+              <label class="form-label">Designation <span class="req">*</span></label>
+              <input type="text" class="form-input" id="f-desig" placeholder="e.g. Senior Waiter, Receptionist"/>
+              <p class="field-err" id="fe-desig">⚠️ Designation is required</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Department <span class="req">*</span></label>
+              <select class="form-select" id="f-dept">
+                <option value="">— Select Department —</option>
+                <option>Management</option><option>Front Office</option><option>Kitchen</option>
+                <option>Service</option><option>HR & Admin</option><option>Security</option>
+                <option>Finance</option><option>Marketing</option><option>IT</option>
+              </select>
+              <p class="field-err" id="fe-dept">⚠️ Department is required</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Joining Date <span class="req">*</span></label>
+              <input type="date" class="form-input" id="f-join"/>
+              <p class="field-err" id="fe-join">⚠️ Joining date is required</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Probation End Date</label>
+              <input type="date" class="form-input" id="f-probation"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shift Preference</label>
+              <select class="form-select" id="f-shift">
+                <option value="">— Select —</option>
+                <option>Morning (7AM-3PM)</option><option>Evening (3PM-11PM)</option>
+                <option>Night (11PM-7AM)</option><option>General (9AM-6PM)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Employment Type</label>
+              <select class="form-select" id="f-emptype">
+                <option value="">— Select —</option>
+                <option>Full-Time</option><option>Part-Time</option>
+                <option>Contractual</option><option>Intern</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Classifications</label>
+              <select class="form-select" id="f-class">
+                <option value="">— Select —</option>
+                <option>Permanent</option><option>Probationary</option><option>Temporary</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="f-status">
+                <option value="Active">Active</option>
+                <option value="Probation">Probation</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Line Manager Name</label>
+              <input type="text" class="form-input" id="f-manager" placeholder="Direct reporting manager"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Joining Salary (BDT)</label>
+              <input type="number" class="form-input" id="f-salary" placeholder="e.g. 25000"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Increment at Vault</label>
+              <input type="text" class="form-input" id="f-increment" placeholder="e.g. ৳3,000 on Jan 2025"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Assets Assigned</label>
+              <input type="text" class="form-input" id="f-assets" placeholder="e.g. Laptop, Uniform x2"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="wz-section">
+          <div class="wz-sec-title">📞 Contact Information</div>
+          <div class="wz-grid">
+            <div class="form-group">
+              <label class="form-label">Personal Mobile</label>
+              <input type="tel" class="form-input" id="f-mobile" placeholder="01XXXXXXXXX"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Official Phone</label>
+              <input type="tel" class="form-input" id="f-official-phone" placeholder="01XXXXXXXXX"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Personal Email</label>
+              <input type="email" class="form-input" id="f-email" placeholder="personal@email.com"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Official Email</label>
+              <input type="email" class="form-input" id="f-off-email" placeholder="name@vault.com"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Emergency & Education -->
+      <div class="wizard-step" data-step="3">
+        <div class="wz-section">
+          <div class="wz-sec-title">🚨 Emergency Contacts</div>
+          <div class="wz-grid">
+            <div class="form-group">
+              <label class="form-label">Contact 1 — Name</label>
+              <input type="text" class="form-input" id="f-em1name" placeholder="Full name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Relation</label>
+              <input type="text" class="form-input" id="f-em1rel" placeholder="e.g. Father, Spouse"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact 1 — Phone</label>
+              <input type="tel" class="form-input" id="f-em1phone" placeholder="01XXXXXXXXX"/>
+            </div>
+            <div class="form-group"></div>
+            <div class="form-group">
+              <label class="form-label">Contact 2 — Name</label>
+              <input type="text" class="form-input" id="f-em2name" placeholder="Full name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Relation</label>
+              <input type="text" class="form-input" id="f-em2rel" placeholder="e.g. Mother, Sibling"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact 2 — Phone</label>
+              <input type="tel" class="form-input" id="f-em2phone" placeholder="01XXXXXXXXX"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="wz-section">
+          <div class="wz-sec-title">🎓 Education</div>
+          <div class="wz-grid three">
+            <div class="form-group">
+              <label class="form-label">Degree 1</label>
+              <input type="text" class="form-input" id="f-deg1" placeholder="e.g. SSC, HSC, BBA"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject 1</label>
+              <input type="text" class="form-input" id="f-sub1" placeholder="e.g. Business Studies"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Institution 1</label>
+              <input type="text" class="form-input" id="f-inst1" placeholder="University/College name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Degree 2</label>
+              <input type="text" class="form-input" id="f-deg2" placeholder="e.g. BBA, MBA"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject 2</label>
+              <input type="text" class="form-input" id="f-sub2" placeholder="Subject"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Institution 2</label>
+              <input type="text" class="form-input" id="f-inst2" placeholder="Institution name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Degree 3</label>
+              <input type="text" class="form-input" id="f-deg3" placeholder="e.g. PhD, Masters"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject 3</label>
+              <input type="text" class="form-input" id="f-sub3" placeholder="Subject"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Institution 3</label>
+              <input type="text" class="form-input" id="f-inst3" placeholder="Institution name"/>
+            </div>
+          </div>
+          <div class="wz-grid" style="margin-top:12px">
+            <div class="form-group">
+              <label class="form-label">Special Degree / Certification</label>
+              <input type="text" class="form-input" id="f-special-deg" placeholder="e.g. CIMA, CFA, PMP"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Top 3 Skills</label>
+              <input type="text" class="form-input" id="f-skills" placeholder="e.g. Leadership, Excel, F&B Service"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="wz-section">
+          <div class="wz-sec-title">🏢 Previous Employment</div>
+          <div class="wz-grid">
+            <div class="form-group">
+              <label class="form-label">Company Name</label>
+              <input type="text" class="form-input" id="f-prev-co" placeholder="Last employer name"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tenure</label>
+              <input type="text" class="form-input" id="f-prev-ten" placeholder="e.g. 2 years 3 months"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Designation</label>
+              <input type="text" class="form-input" id="f-prev-desig" placeholder="Previous job title"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Department</label>
+              <input type="text" class="form-input" id="f-prev-dept" placeholder="Previous department"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Finance & Social -->
+      <div class="wizard-step" data-step="4">
+        <div class="wz-section">
+          <div class="wz-sec-title">🏦 Banking & MFS</div>
+          <div class="wz-grid">
+            <div class="form-group">
+              <label class="form-label">Bank Name</label>
+              <input type="text" class="form-input" id="f-bank" placeholder="e.g. Dutch-Bangla Bank"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account Holder Name</label>
+              <input type="text" class="form-input" id="f-accholder" placeholder="Name on bank account"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bank Account Number</label>
+              <input type="text" class="form-input" id="f-accno" placeholder="Account number"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Routing Number</label>
+              <input type="text" class="form-input" id="f-routing" placeholder="Bank routing number"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">bKash Number</label>
+              <input type="tel" class="form-input" id="f-bkash" placeholder="01XXXXXXXXX"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nagad Number</label>
+              <input type="tel" class="form-input" id="f-nagad" placeholder="01XXXXXXXXX"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="wz-section">
+          <div class="wz-sec-title">🌐 Social & References</div>
+          <div class="wz-grid">
+            <div class="form-group">
+              <label class="form-label">LinkedIn URL</label>
+              <input type="url" class="form-input" id="f-linkedin" placeholder="https://linkedin.com/in/..."/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Facebook URL</label>
+              <input type="url" class="form-input" id="f-facebook" placeholder="https://facebook.com/..."/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">References Name</label>
+              <input type="text" class="form-input" id="f-ref" placeholder="Who referred this employee?"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Award / Recognition</label>
+              <input type="text" class="form-input" id="f-award" placeholder="e.g. Best Employee Q3 2024"/>
+            </div>
+          </div>
+          <div class="wz-grid one" style="margin-top:12px">
+            <div class="form-group">
+              <label class="form-label">Warning / Disciplinary Ledger</label>
+              <textarea class="form-textarea" id="f-warning" placeholder="Any prior warnings or disciplinary records..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Documents -->
+      <div class="wizard-step" data-step="5">
+        <div class="wz-section">
+          <div class="wz-sec-title">📎 Document Upload (Google Drive)</div>
+          <p style="font-size:12.5px;color:var(--text2);margin-bottom:16px;line-height:1.6">
+            Files are uploaded to a private Google Drive folder under the employee's ID.
+            Each file URL is automatically saved to the Employees sheet.
+            <span style="color:var(--amber)">⚠️ Connect your GAS backend to enable live uploads.</span>
+          </p>
+
+          <!-- Photo upload -->
+          <div class="wz-grid one" style="gap:14px">
+            <div class="form-group">
+              <label class="form-label">📸 Passport Size Photo</label>
+              <div class="upload-zone" id="uz-photo" ondragover="handleDrag(event,'uz-photo')" ondragleave="handleDragLeave(event,'uz-photo')">
+                <input type="file" id="file-photo" accept="image/*" onchange="handleFileSelect(event,'photo','uz-photo')"/>
+                <div class="uz-icon">🖼️</div>
+                <div class="uz-text">Click or drag photo here</div>
+                <div class="uz-sub">JPG, PNG — max 2MB</div>
+              </div>
+              <div class="upload-progress" id="up-photo"><div class="upload-progress-bar" id="upb-photo"></div></div>
+              <div class="upload-done-link" id="udl-photo">✅ Uploaded — <a href="#" id="uda-photo" target="_blank" style="color:var(--cyan)">View in Drive</a></div>
+            </div>
+
+            <!-- CV upload -->
+            <div class="form-group">
+              <label class="form-label">📄 CV / Resume</label>
+              <div class="upload-zone" id="uz-cv" ondragover="handleDrag(event,'uz-cv')" ondragleave="handleDragLeave(event,'uz-cv')">
+                <input type="file" id="file-cv" accept=".pdf,.doc,.docx" onchange="handleFileSelect(event,'cv','uz-cv')"/>
+                <div class="uz-icon">📄</div>
+                <div class="uz-text">Click or drag CV/Resume here</div>
+                <div class="uz-sub">PDF, DOC, DOCX — max 5MB</div>
+              </div>
+              <div class="upload-progress" id="up-cv"><div class="upload-progress-bar" id="upb-cv"></div></div>
+              <div class="upload-done-link" id="udl-cv">✅ Uploaded — <a href="#" id="uda-cv" target="_blank" style="color:var(--cyan)">View in Drive</a></div>
+            </div>
+
+            <!-- All docs upload -->
+            <div class="form-group">
+              <label class="form-label">🗂️ All Documents (NID, Certificates, etc.)</label>
+              <div class="upload-zone" id="uz-docs" ondragover="handleDrag(event,'uz-docs')" ondragleave="handleDragLeave(event,'uz-docs')">
+                <input type="file" id="file-docs" accept=".pdf,.jpg,.jpeg,.png,.zip" onchange="handleFileSelect(event,'documents','uz-docs')"/>
+                <div class="uz-icon">🗂️</div>
+                <div class="uz-text">Click or drag documents here</div>
+                <div class="uz-sub">PDF, Image, ZIP — max 10MB</div>
+              </div>
+              <div class="upload-progress" id="up-docs"><div class="upload-progress-bar" id="upb-docs"></div></div>
+              <div class="upload-done-link" id="udl-docs">✅ Uploaded — <a href="#" id="uda-docs" target="_blank" style="color:var(--cyan)">View in Drive</a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wz-section">
+          <div class="wz-sec-title">✅ Review Summary</div>
+          <div id="review-summary" style="background:var(--elevated);border-radius:var(--r-sm);
+            padding:16px;font-size:12.5px;color:var(--text2);line-height:1.9;border:1px solid var(--border)">
+            <!-- Populated on step 5 entry -->
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /wizard-body -->
+
+    <!-- Footer -->
+    <div class="wizard-foot">
+      <div class="wz-step-info" id="wz-step-label">Step 1 of 5</div>
+      <div style="display:flex;gap:9px;align-items:center">
+        <button class="btn-ghost" id="wz-back-btn" onclick="wizardPrev()" style="display:none">← Back</button>
+        <button class="btn-primary" id="wz-next-btn" onclick="wizardNext()">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Employee Modal -->
+<div class="modal-overlay view-modal" id="view-overlay">
+  <div class="modal" style="max-width:860px">
+    <div class="emp-profile-hd" id="view-profile-hd">
+      <!-- populated by JS -->
+    </div>
+    <div class="profile-tabs" id="profile-tabs">
+      <div class="ptab active" onclick="switchPTab(this,'pt-personal')">Personal</div>
+      <div class="ptab" onclick="switchPTab(this,'pt-job')">Employment</div>
+      <div class="ptab" onclick="switchPTab(this,'pt-finance')">Finance</div>
+      <div class="ptab" onclick="switchPTab(this,'pt-education')">Education</div>
+      <div class="ptab" onclick="switchPTab(this,'pt-docs')">Documents</div>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <div class="ptab-panel active" id="pt-personal"></div>
+      <div class="ptab-panel" id="pt-job"></div>
+      <div class="ptab-panel" id="pt-finance"></div>
+      <div class="ptab-panel" id="pt-education"></div>
+      <div class="ptab-panel" id="pt-docs"></div>
+    </div>
+    <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end;flex-shrink:0">
+      <button class="btn-ghost" onclick="closeViewModal()">Close</button>
+      <button class="btn-primary" id="view-edit-btn">✏️ Edit Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN APP ═══════════════ -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">🏢</div>
+      <div>
+        <div class="sb-logo-text">HRMIS</div>
+        <div class="sb-logo-sub">Enterprise Portal</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sec">Core</div>
+      <div class="sb-item" onclick="location.href='#'">
+        <span class="sb-item-ico">📊</span> Dashboard
+      </div>
+      <div class="sb-item active">
+        <span class="sb-item-ico">👥</span> Employees
+        <span class="sb-badge g" id="sb-count">—</span>
+      </div>
+      <div class="sb-sec">Operations</div>
+      <div class="sb-item">
+        <span class="sb-item-ico">📍</span> Attendance
+        <span class="sb-badge">Step 4</span>
+      </div>
+      <div class="sb-item"><span class="sb-item-ico">💰</span> Payroll</div>
+      <div class="sb-item"><span class="sb-item-ico">🏦</span> Loans</div>
+      <div class="sb-sec">Growth</div>
+      <div class="sb-item"><span class="sb-item-ico">⭐</span> Performance</div>
+      <div class="sb-item"><span class="sb-item-ico">✅</span> Daily Tasks</div>
+      <div class="sb-sec">Engagement</div>
+      <div class="sb-item"><span class="sb-item-ico">📢</span> Notices</div>
+      <div class="sb-item"><span class="sb-item-ico">🎫</span> Helpdesk <span class="sb-badge">5</span></div>
+      <div class="sb-item"><span class="sb-item-ico">🚪</span> Offboarding</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-clock" id="sb-clock">--:--:--</div>
+      <div class="sb-date-txt" id="sb-date">---</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="tp-title">Employee Management</div>
+        <div class="tp-bread">HRMIS › Admin › Employees</div>
+      </div>
+      <div class="tp-right">
+        <div class="tp-search">
+          <span>🔍</span>
+          <input type="text" placeholder="Search employees..." id="global-search" oninput="filterEmployees()"/>
+        </div>
+        <div class="tp-ico" title="Notifications">🔔<span class="notif-dot"></span></div>
+        <div class="tp-ico" title="Settings">⚙️</div>
+      </div>
+    </header>
+
+    <div class="content" id="main-content">
+      <!-- Page header -->
+      <div class="page-hd">
+        <div>
+          <div class="ph-tag">Admin Module</div>
+          <div class="ph-title">👥 Employee Directory</div>
+          <div class="ph-sub">Manage all <span id="total-emp-count">—</span> team members across all departments</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-ghost" onclick="exportCSV()">⬇️ Export CSV</button>
+          <button class="btn-primary" onclick="openWizard()">+ Add Employee</button>
+        </div>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-ico" style="background:var(--cyan-dim)">👥</div>
+          <div><div class="stat-val" id="st-total">—</div><div class="stat-lbl">Total Employees</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ico" style="background:var(--emerald-dim)">✅</div>
+          <div><div class="stat-val" id="st-active">—</div><div class="stat-lbl">Active</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ico" style="background:var(--amber-dim)">⏳</div>
+          <div><div class="stat-val" id="st-probation">—</div><div class="stat-lbl">On Probation</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ico" style="background:var(--rose-dim)">🚪</div>
+          <div><div class="stat-val" id="st-inactive">—</div><div class="stat-lbl">Inactive</div></div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <div class="filter-search">
+          <span>🔍</span>
+          <input type="text" id="tbl-search" placeholder="Search name, ID, designation..." oninput="filterEmployees()"/>
+        </div>
+        <select class="filter-select" id="filter-dept" onchange="filterEmployees()">
+          <option value="All">All Departments</option>
+          <option>Management</option><option>Front Office</option><option>Kitchen</option>
+          <option>Service</option><option>HR & Admin</option><option>Security</option>
+          <option>Finance</option>
+        </select>
+        <select class="filter-select" id="filter-status" onchange="filterEmployees()">
+          <option value="All">All Status</option>
+          <option>Active</option><option>Probation</option><option>Inactive</option>
+        </select>
+        <div class="view-toggle">
+          <button class="vt-btn active" id="vt-grid" onclick="switchView('grid')" title="Grid view">⊞</button>
+          <button class="vt-btn" id="vt-table" onclick="switchView('table')" title="Table view">☰</button>
+        </div>
+      </div>
+
+      <!-- Employee list -->
+      <div id="emp-list-container">
+        <div class="loading-state">
+          <div class="spinner"></div> Loading employees...
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  CONFIGURATION
+//  ↓↓ Replace with your deployed GAS Web App URL ↓↓
+// ═══════════════════════════════════════════════════════════════
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbyMoQK1DmYRiBCLt6aiX9QO1gmZ3nOTosFa-dv9g0dm1PmJMQ6TH_M_dP_1tmT4Dfpn/exec';
+const MOCK_MODE = false; // Set to FALSE when GAS is connected
+
+// ═══════════════════════════════════════════════════════════════
+//  MOCK DATA — mirrors real Employees sheet schema
+// ═══════════════════════════════════════════════════════════════
+const MOCK_EMPLOYEES = [
+  {
+    'Date':'2023-01-15','FULL NAME (As per NID)':'Mohammad Karim Hossain','Employee ID':'VLT-001',
+    'DESIGNATION':'Senior Waiter','JOINING DATE':'2023-01-15','Employee Tenure':'2y 2m',
+    'Shift Preference':'Evening (3PM-11PM)','Probation End Date':'2023-04-15',
+    'NID NUMBER':'1234567890123','FATHER\'S NAME':'Abdul Karim','MOTHER\'S NAME':'Fatema Begum',
+    'DATE OF BIRTH':'1995-05-20','Marital status':'Married','E-MAIL ID':'karim@gmail.com',
+    'Email Address':'karim@vault.com','MOBILE NUMBER (Personal)':'01711234567',
+    'Official Phone number':'01911234567','PERMANENT ADDRESS (According to NID)':'Village: Comilla, District: Comilla',
+    'PRESENT ADDRESS':'Flat 4B, House 12, Road 5, Banani, Dhaka','BLOOD GROUP':'B+',
+    'Religion':'Islam','Gender':'Male','DEPARTMENT':'Service','LINE MANAGER NAME':'Rahim Ahmed',
+    'EMERGENCY CONTACT NAME 1':'Abdul Karim','RELATION WITH 1':'Father','EMERGENCY CONTACT NUMBER':'01611234567',
+    'EMERGENCY CONTACT NAME 2':'Rahela Karim','RELATION WITH 2':'Wife','EMERGENCY CONTACT NUMBER 2':'01511234567',
+    'linkedin id (Link)':'','Facebook ID (link)':'','TOP 3 SKILLS':'F&B Service, Customer Relations, POS',
+    'TIN':'123456789','BANK NAME':'Dutch-Bangla Bank','ACCOUNT HOLDER NAME':'Mohammad Karim Hossain',
+    'BANK ACCOUNT NUMBER':'1234567890123','ROUTING NUMBER':'090261010',
+    'MFS-Nagad':'01711234567','MFS-Bkash':'01711234567',
+    'AWARD RECOGNITION':'Best Employee Q3 2024','Special Degree':'',
+    'EDUCATIONAL DEGREE 1':'SSC','SUBJECT 1':'General','INSTITUTION 1':'Comilla Govt High School',
+    'EDUCATIONAL DEGREE 2':'HSC','SUBJECT 2':'Commerce','INSTITUTION 2':'Comilla Victoria College',
+    'EDUCATIONAL DEGREE 3':'','SUBJECT 3':'','INSTITUTION 3':'',
+    'LAST EMPLOYMENT COMPANY NAME':'Hotel Sarina','LAST EMPLOYMENT TENURE':'1y 6m',
+    'LAST EMPLOYMENT DESIGNATION':'Waiter','LAST EMPLOYMENT DEPARTMENT':'F&B',
+    'LAST INCREMENT AT VAULT':'৳3,000 on Jan 2025','References Name (if any)':'Rahim Ahmed',
+    'Joining Salary':'22000','Nickname':'Karim','Status':'Active',
+    'Classifications':'Permanent','Employment type':'Full-Time','Assets Assigned':'Uniform x2, Name Tag',
+    'Warning/Disciplinary Ledger':'','Termination Date (LWD)':'','Ref OF termination':'',
+    'Passport Size Picture (Drive Link)':'','CV (Drive Link)':'','All documents (Drive Link)':''
+  },
+  {
+    'Date':'2023-03-01','FULL NAME (As per NID)':'Nusrat Jahan Mitu','Employee ID':'VLT-002',
+    'DESIGNATION':'HR Executive','JOINING DATE':'2023-03-01','Employee Tenure':'2y 0m',
+    'Shift Preference':'General (9AM-6PM)','Probation End Date':'2023-06-01',
+    'NID NUMBER':'9876543210987','FATHER\'S NAME':'Jabbar Miah','MOTHER\'S NAME':'Hosne Ara',
+    'DATE OF BIRTH':'1997-11-12','Marital status':'Single','E-MAIL ID':'nusrat@gmail.com',
+    'Email Address':'nusrat.hr@vault.com','MOBILE NUMBER (Personal)':'01822345678',
+    'Official Phone number':'','PERMANENT ADDRESS (According to NID)':'Sylhet Sadar, Sylhet',
+    'PRESENT ADDRESS':'House 7, Gulshan-2, Dhaka','BLOOD GROUP':'O+',
+    'Religion':'Islam','Gender':'Female','DEPARTMENT':'HR & Admin','LINE MANAGER NAME':'Rahim Ahmed',
+    'EMERGENCY CONTACT NAME 1':'Jabbar Miah','RELATION WITH 1':'Father','EMERGENCY CONTACT NUMBER':'01622345678',
+    'EMERGENCY CONTACT NAME 2':'','RELATION WITH 2':'','EMERGENCY CONTACT NUMBER 2':'',
+    'linkedin id (Link)':'https://linkedin.com/in/nusrat-jahan','Facebook ID (link)':'',
+    'TOP 3 SKILLS':'HR Management, Recruitment, MS Office',
+    'TIN':'987654321','BANK NAME':'BRAC Bank','ACCOUNT HOLDER NAME':'Nusrat Jahan',
+    'BANK ACCOUNT NUMBER':'9876543210','ROUTING NUMBER':'060261310',
+    'MFS-Nagad':'01822345678','MFS-Bkash':'01822345678',
+    'AWARD RECOGNITION':'','Special Degree':'',
+    'EDUCATIONAL DEGREE 1':'BBA','SUBJECT 1':'HRM','INSTITUTION 1':'University of Dhaka',
+    'EDUCATIONAL DEGREE 2':'','SUBJECT 2':'','INSTITUTION 2':'',
+    'EDUCATIONAL DEGREE 3':'','SUBJECT 3':'','INSTITUTION 3':'',
+    'LAST EMPLOYMENT COMPANY NAME':'','LAST EMPLOYMENT TENURE':'',
+    'LAST EMPLOYMENT DESIGNATION':'','LAST EMPLOYMENT DEPARTMENT':'',
+    'LAST INCREMENT AT VAULT':'৳2,500 on Mar 2025','References Name (if any)':'',
+    'Joining Salary':'28000','Nickname':'Mitu','Status':'Active',
+    'Classifications':'Permanent','Employment type':'Full-Time','Assets Assigned':'Laptop, ID Card',
+    'Warning/Disciplinary Ledger':'','Termination Date (LWD)':'','Ref OF termination':'',
+    'Passport Size Picture (Drive Link)':'','CV (Drive Link)':'','All documents (Drive Link)':''
+  },
+  {
+    'Date':'2024-06-01','FULL NAME (As per NID)':'Arif Rahman Rony','Employee ID':'VLT-003',
+    'DESIGNATION':'Chef de Partie','JOINING DATE':'2024-06-01','Employee Tenure':'9m',
+    'Shift Preference':'Morning (7AM-3PM)','Probation End Date':'2024-09-01',
+    'NID NUMBER':'5566778899001','FATHER\'S NAME':'Abdur Rahman','MOTHER\'S NAME':'Razia Begum',
+    'DATE OF BIRTH':'1990-03-08','Marital status':'Married','E-MAIL ID':'arif@gmail.com',
+    'Email Address':'arif.kitchen@vault.com','MOBILE NUMBER (Personal)':'01933456789',
+    'Official Phone number':'','PERMANENT ADDRESS (According to NID)':'Bogura Sadar, Bogura',
+    'PRESENT ADDRESS':'Mohammadpur, Dhaka','BLOOD GROUP':'A+',
+    'Religion':'Islam','Gender':'Male','DEPARTMENT':'Kitchen','LINE MANAGER NAME':'Executive Chef',
+    'EMERGENCY CONTACT NAME 1':'Abdur Rahman','RELATION WITH 1':'Father','EMERGENCY CONTACT NUMBER':'01733456789',
+    'EMERGENCY CONTACT NAME 2':'','RELATION WITH 2':'','EMERGENCY CONTACT NUMBER 2':'',
+    'linkedin id (Link)':'','Facebook ID (link)':'',
+    'TOP 3 SKILLS':'Continental Cuisine, Pastry, Kitchen Management',
+    'TIN':'','BANK NAME':'Islami Bank','ACCOUNT HOLDER NAME':'Arif Rahman',
+    'BANK ACCOUNT NUMBER':'33445566778','ROUTING NUMBER':'125261020',
+    'MFS-Nagad':'01933456789','MFS-Bkash':'',
+    'AWARD RECOGNITION':'','Special Degree':'City & Guilds Level 3',
+    'EDUCATIONAL DEGREE 1':'Diploma in Hotel Management','SUBJECT 1':'Culinary Arts',
+    'INSTITUTION 1':'National Hotel & Tourism Training Institute',
+    'EDUCATIONAL DEGREE 2':'','SUBJECT 2':'','INSTITUTION 2':'',
+    'EDUCATIONAL DEGREE 3':'','SUBJECT 3':'','INSTITUTION 3':'',
+    'LAST EMPLOYMENT COMPANY NAME':'The Westin Dhaka','LAST EMPLOYMENT TENURE':'3y 2m',
+    'LAST EMPLOYMENT DESIGNATION':'Junior Chef','LAST EMPLOYMENT DEPARTMENT':'Kitchen',
+    'LAST INCREMENT AT VAULT':'','References Name (if any)':'',
+    'Joining Salary':'35000','Nickname':'Rony','Status':'Probation',
+    'Classifications':'Probationary','Employment type':'Full-Time','Assets Assigned':'Chef Uniform x3, Knives Set',
+    'Warning/Disciplinary Ledger':'','Termination Date (LWD)':'','Ref OF termination':'',
+    'Passport Size Picture (Drive Link)':'','CV (Drive Link)':'','All documents (Drive Link)':''
+  },
+  {
+    'Date':'2022-09-01','FULL NAME (As per NID)':'Sadia Islam Shova','Employee ID':'VLT-004',
+    'DESIGNATION':'Receptionist','JOINING DATE':'2022-09-01','Employee Tenure':'2y 6m',
+    'Shift Preference':'Evening (3PM-11PM)','Probation End Date':'2022-12-01',
+    'NID NUMBER':'1122334455667','FATHER\'S NAME':'Nazrul Islam','MOTHER\'S NAME':'Shirina Begum',
+    'DATE OF BIRTH':'1999-07-25','Marital status':'Single','E-MAIL ID':'sadia@gmail.com',
+    'Email Address':'sadia.fo@vault.com','MOBILE NUMBER (Personal)':'01644567890',
+    'Official Phone number':'01944567890','PERMANENT ADDRESS (According to NID)':'Narsingdi Sadar, Narsingdi',
+    'PRESENT ADDRESS':'Uttara Sector 7, Dhaka','BLOOD GROUP':'AB+',
+    'Religion':'Islam','Gender':'Female','DEPARTMENT':'Front Office','LINE MANAGER NAME':'FO Manager',
+    'EMERGENCY CONTACT NAME 1':'Nazrul Islam','RELATION WITH 1':'Father','EMERGENCY CONTACT NUMBER':'01544567890',
+    'EMERGENCY CONTACT NAME 2':'','RELATION WITH 2':'','EMERGENCY CONTACT NUMBER 2':'',
+    'linkedin id (Link)':'','Facebook ID (link)':'https://facebook.com/sadia.shova',
+    'TOP 3 SKILLS':'Guest Relations, PMS, Communication',
+    'TIN':'','BANK NAME':'Sonali Bank','ACCOUNT HOLDER NAME':'Sadia Islam',
+    'BANK ACCOUNT NUMBER':'44556677889','ROUTING NUMBER':'200151016',
+    'MFS-Nagad':'','MFS-Bkash':'01644567890',
+    'AWARD RECOGNITION':'Smile of the Month — Feb 2025','Special Degree':'',
+    'EDUCATIONAL DEGREE 1':'BBA','SUBJECT 1':'Tourism & Hospitality','INSTITUTION 1':'Daffodil International University',
+    'EDUCATIONAL DEGREE 2':'','SUBJECT 2':'','INSTITUTION 2':'',
+    'EDUCATIONAL DEGREE 3':'','SUBJECT 3':'','INSTITUTION 3':'',
+    'LAST EMPLOYMENT COMPANY NAME':'','LAST EMPLOYMENT TENURE':'',
+    'LAST EMPLOYMENT DESIGNATION':'','LAST EMPLOYMENT DEPARTMENT':'',
+    'LAST INCREMENT AT VAULT':'৳2,000 on Sep 2024','References Name (if any)':'Nusrat Jahan',
+    'Joining Salary':'20000','Nickname':'Shova','Status':'Active',
+    'Classifications':'Permanent','Employment type':'Full-Time','Assets Assigned':'Uniform x2, ID Card',
+    'Warning/Disciplinary Ledger':'1 verbal warning — Mar 2024 (tardiness)',
+    'Termination Date (LWD)':'','Ref OF termination':'',
+    'Passport Size Picture (Drive Link)':'','CV (Drive Link)':'','All documents (Drive Link)':''
+  },
+  {
+    'Date':'2021-11-01','FULL NAME (As per NID)':'Tanvir Ahmed Tuhin','Employee ID':'VLT-005',
+    'DESIGNATION':'Security Guard','JOINING DATE':'2021-11-01','Employee Tenure':'3y 4m',
+    'Shift Preference':'Night (11PM-7AM)','Probation End Date':'2022-02-01',
+    'NID NUMBER':'9988776655443','FATHER\'S NAME':'Nasiruddin Ahmed','MOTHER\'S NAME':'Amena Khatun',
+    'DATE OF BIRTH':'1988-12-15','Marital status':'Married','E-MAIL ID':'','Email Address':'',
+    'MOBILE NUMBER (Personal)':'01755678901','Official Phone number':'',
+    'PERMANENT ADDRESS (According to NID)':'Tangail Sadar, Tangail',
+    'PRESENT ADDRESS':'Mirpur Section 11, Dhaka','BLOOD GROUP':'O-',
+    'Religion':'Islam','Gender':'Male','DEPARTMENT':'Security','LINE MANAGER NAME':'Security Supervisor',
+    'EMERGENCY CONTACT NAME 1':'Nasiruddin Ahmed','RELATION WITH 1':'Father','EMERGENCY CONTACT NUMBER':'01655678901',
+    'EMERGENCY CONTACT NAME 2':'Rehana Ahmed','RELATION WITH 2':'Wife','EMERGENCY CONTACT NUMBER 2':'01555678901',
+    'linkedin id (Link)':'','Facebook ID (link)':'',
+    'TOP 3 SKILLS':'Surveillance, Physical Security, Emergency Response',
+    'TIN':'','BANK NAME':'Agrani Bank','ACCOUNT HOLDER NAME':'Tanvir Ahmed',
+    'BANK ACCOUNT NUMBER':'55667788990','ROUTING NUMBER':'010270474',
+    'MFS-Nagad':'01755678901','MFS-Bkash':'',
+    'AWARD RECOGNITION':'','Special Degree':'Security Training Certificate',
+    'EDUCATIONAL DEGREE 1':'SSC','SUBJECT 1':'General','INSTITUTION 1':'Tangail Govt High School',
+    'EDUCATIONAL DEGREE 2':'','SUBJECT 2':'','INSTITUTION 2':'',
+    'EDUCATIONAL DEGREE 3':'','SUBJECT 3':'','INSTITUTION 3':'',
+    'LAST EMPLOYMENT COMPANY NAME':'Radisson Blu','LAST EMPLOYMENT TENURE':'2y',
+    'LAST EMPLOYMENT DESIGNATION':'Security Guard','LAST EMPLOYMENT DEPARTMENT':'Security',
+    'LAST INCREMENT AT VAULT':'৳1,500 on Nov 2024','References Name (if any)':'',
+    'Joining Salary':'16000','Nickname':'Tuhin','Status':'Inactive',
+    'Classifications':'Permanent','Employment type':'Full-Time','Assets Assigned':'Uniform x3, Walkie-Talkie',
+    'Warning/Disciplinary Ledger':'','Termination Date (LWD)':'2025-02-28','Ref OF termination':'Resigned',
+    'Passport Size Picture (Drive Link)':'','CV (Drive Link)':'','All documents (Drive Link)':''
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  GLOBAL STATE
+// ═══════════════════════════════════════════════════════════════
+let employees = [];
+let currentView = 'grid';
+let currentWizardStep = 1;
+const TOTAL_WIZARD_STEPS = 5;
+let editingEmpId = null;
+let uploadedFiles = { photo: null, cv: null, documents: null };
+let currentViewEmployee = null;
+let confirmCallback = null;
+
+const WIZARD_STEPS_META = [
+  { label:'Personal',   icon:'👤' },
+  { label:'Employment', icon:'💼' },
+  { label:'Emergency',  icon:'🚨' },
+  { label:'Finance',    icon:'🏦' },
+  { label:'Documents',  icon:'📎' },
+];
+
+const DEPT_COLORS = {
+  'Management':  '#00d4ff', 'Front Office': '#4f7dff', 'Kitchen': '#00e5a0',
+  'Service':     '#ffb300', 'HR & Admin':   '#a855f7', 'Security': '#ff4d6d',
+  'Finance':     '#06b6d4', 'IT':           '#3b82f6', 'Marketing':'#ec4899'
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════
+const Toast = {
+  _b: document.getElementById('toastbox'),
+  _i: { s:'✅', e:'❌', i:'ℹ️', w:'⚠️' },
+  show(msg, type='i', dur=4000) {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${this._i[type]}</span><span>${msg}</span>`;
+    this._b.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('out');
+      el.addEventListener('animationend', ()=>el.remove(), {once:true});
+    }, dur);
+  },
+  s(m,d){this.show(m,'s',d);}, e(m,d){this.show(m,'e',d);},
+  i(m,d){this.show(m,'i',d);}, w(m,d){this.show(m,'w',d);}
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  API LAYER
+// ═══════════════════════════════════════════════════════════════
+const API = {
+  async call(action, payload={}) {
+    if (MOCK_MODE) return this.mock(action, payload);
+    const res = await fetch(GAS_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action, ...payload })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  },
+
+  mock(action, payload) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        switch(action) {
+          case 'getEmployees': {
+            let list = [...MOCK_EMPLOYEES];
+            if (payload.department && payload.department !== 'All')
+              list = list.filter(e=>e['DEPARTMENT']===payload.department);
+            if (payload.status && payload.status !== 'All')
+              list = list.filter(e=>e['Status']===payload.status);
+            if (payload.search) {
+              const q = payload.search.toLowerCase();
+              list = list.filter(e=>
+                e['FULL NAME (As per NID)'].toLowerCase().includes(q)||
+                e['Employee ID'].toLowerCase().includes(q)||
+                e['DESIGNATION'].toLowerCase().includes(q)
+              );
+            }
+            resolve({ success:true, employees:list, total:list.length });
+            break;
+          }
+          case 'getNextEmpId': {
+            const ids = MOCK_EMPLOYEES.map(e=>parseInt(e['Employee ID'].replace('VLT-','')));
+            const next = Math.max(...ids) + 1;
+            resolve({ success:true, nextId:'VLT-'+String(next).padStart(3,'0') });
+            break;
+          }
+          case 'addEmployee': {
+            MOCK_EMPLOYEES.push({ ...payload.employeeData });
+            resolve({ success:true, message:`Employee ${payload.employeeData['FULL NAME (As per NID)']} added successfully.`, empId: payload.employeeData['Employee ID'] });
+            break;
+          }
+          case 'updateEmployee': {
+            const idx = MOCK_EMPLOYEES.findIndex(e=>e['Employee ID']===payload.empId);
+            if (idx>=0) { Object.assign(MOCK_EMPLOYEES[idx], payload.employeeData); resolve({success:true,message:'Updated.'}); }
+            else resolve({success:false,message:'Not found.'});
+            break;
+          }
+          case 'deleteEmployee': {
+            const idx = MOCK_EMPLOYEES.findIndex(e=>e['Employee ID']===payload.empId);
+            if (idx>=0) {
+              MOCK_EMPLOYEES[idx]['Status']='Inactive';
+              MOCK_EMPLOYEES[idx]['Termination Date (LWD)']=new Date().toISOString().split('T')[0];
+              MOCK_EMPLOYEES[idx]['Ref OF termination']=payload.reason||'Deactivated';
+              resolve({success:true,message:'Deactivated.'});
+            } else resolve({success:false,message:'Not found.'});
+            break;
+          }
+          case 'uploadFile':
+            // Simulate upload
+            resolve({ success:true, fileUrl:'https://drive.google.com/file/d/mock-id/view', fileId:'mock-id' });
+            break;
+          default:
+            resolve({success:false,message:'Unknown action'});
+        }
+      }, 500);
+    });
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  EMPLOYEE DIRECTORY
+// ═══════════════════════════════════════════════════════════════
+async function loadEmployees() {
+  const dept   = document.getElementById('filter-dept').value;
+  const status = document.getElementById('filter-status').value;
+  const search = document.getElementById('tbl-search').value || document.getElementById('global-search').value;
+
+  const container = document.getElementById('emp-list-container');
+  container.innerHTML = `<div class="loading-state"><div class="spinner"></div> Loading employees...</div>`;
+
+  try {
+    const res = await API.call('getEmployees', { role:'Admin', department:dept, status, search });
+    if (!res.success) throw new Error(res.message);
+    employees = res.employees;
+    renderStats();
+    renderEmployeeList();
+  } catch(err) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-ico">⚠️</div><div class="empty-title">Failed to load</div><div class="empty-sub">${err.message}</div></div>`;
+    Toast.e(err.message);
+  }
+}
+
+function renderStats() {
+  const all      = MOCK_EMPLOYEES.length;
+  const active   = MOCK_EMPLOYEES.filter(e=>e['Status']==='Active').length;
+  const prob     = MOCK_EMPLOYEES.filter(e=>e['Status']==='Probation').length;
+  const inactive = MOCK_EMPLOYEES.filter(e=>e['Status']==='Inactive').length;
+  document.getElementById('st-total').textContent    = all;
+  document.getElementById('st-active').textContent   = active;
+  document.getElementById('st-probation').textContent= prob;
+  document.getElementById('st-inactive').textContent = inactive;
+  document.getElementById('total-emp-count').textContent = all;
+  document.getElementById('sb-count').textContent = active;
+}
+
+function renderEmployeeList() {
+  const container = document.getElementById('emp-list-container');
+  if (!employees.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-ico">👥</div><div class="empty-title">No employees found</div><div class="empty-sub">Try changing your filters or add a new employee.</div></div>`;
+    return;
+  }
+  if (currentView === 'grid') {
+    container.innerHTML = `<div class="emp-grid">${employees.map(empCard).join('')}</div>`;
+  } else {
+    container.innerHTML = `
+      <div class="emp-table-wrap">
+        <table class="emp-table">
+          <thead>
+            <tr>
+              <th>Employee</th><th>ID</th><th>Department</th><th>Designation</th>
+              <th>Joining</th><th>Status</th><th style="width:130px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>${employees.map(empTableRow).join('')}</tbody>
+        </table>
+      </div>`;
+  }
+}
+
+function getInitials(name) {
+  return name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+}
+function getAvatarColor(dept) {
+  return DEPT_COLORS[dept] || '#7a9bc8';
+}
+
+function empCard(emp) {
+  const init  = getInitials(emp['FULL NAME (As per NID)']);
+  const color = getAvatarColor(emp['DEPARTMENT']);
+  const status= emp['Status'] || 'Active';
+  return `
+    <div class="emp-card" onclick="viewEmployee('${emp['Employee ID']}')">
+      <span class="ec-status ${status.toLowerCase()}">${status}</span>
+      <div class="ec-top">
+        <div class="ec-avatar" style="background:${color}22;color:${color};border:1px solid ${color}33">${init}</div>
+        <div>
+          <div class="ec-name">${emp['FULL NAME (As per NID)']}</div>
+          <div class="ec-id">${emp['Employee ID']}</div>
+        </div>
+      </div>
+      <div class="ec-dept">${emp['DEPARTMENT']}</div>
+      <div class="ec-rows">
+        <div class="ec-row"><span class="ec-row-ico">💼</span>${emp['DESIGNATION']}</div>
+        <div class="ec-row"><span class="ec-row-ico">📅</span>${formatDate(emp['JOINING DATE'])}</div>
+        <div class="ec-row"><span class="ec-row-ico">⏱️</span>${emp['Employee Tenure'] || '—'}</div>
+        ${emp['MOBILE NUMBER (Personal)'] ? `<div class="ec-row"><span class="ec-row-ico">📱</span>${emp['MOBILE NUMBER (Personal)']}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function empTableRow(emp) {
+  const init  = getInitials(emp['FULL NAME (As per NID)']);
+  const color = getAvatarColor(emp['DEPARTMENT']);
+  const status= emp['Status'] || 'Active';
+  return `
+    <tr onclick="viewEmployee('${emp['Employee ID']}')" title="Click to view profile">
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:800;background:${color}22;color:${color};border:1px solid ${color}33;
+            flex-shrink:0;font-family:'JetBrains Mono',monospace">${init}</div>
+          <div>
+            <div class="td-name">${emp['FULL NAME (As per NID)']}</div>
+            <div style="font-size:10.5px;color:var(--text3)">${emp['Nickname'] ? '(' + emp['Nickname'] + ')' : ''}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="td-id">${emp['Employee ID']}</span></td>
+      <td><span class="td-dept">${emp['DEPARTMENT']}</span></td>
+      <td style="font-size:12px">${emp['DESIGNATION']}</td>
+      <td style="font-size:12px;font-family:'JetBrains Mono',monospace">${formatDate(emp['JOINING DATE'])}</td>
+      <td><span class="td-status ${status.toLowerCase()}">${status}</span></td>
+      <td onclick="event.stopPropagation()">
+        <div class="td-actions">
+          <button class="td-btn" onclick="viewEmployee('${emp['Employee ID']}')">👁 View</button>
+          <button class="td-btn" onclick="editEmployee('${emp['Employee ID']}')">✏️</button>
+          <button class="td-btn red" onclick="confirmDeactivate('${emp['Employee ID']}')">🚫</button>
+        </div>
+      </td>
+    </tr>`;
+}
+
+function filterEmployees() {
+  clearTimeout(filterEmployees._t);
+  filterEmployees._t = setTimeout(loadEmployees, 300);
+}
+
+function switchView(v) {
+  currentView = v;
+  document.getElementById('vt-grid').classList.toggle('active', v==='grid');
+  document.getElementById('vt-table').classList.toggle('active', v==='table');
+  renderEmployeeList();
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  try {
+    return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  } catch { return d; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  VIEW EMPLOYEE MODAL
+// ═══════════════════════════════════════════════════════════════
+function viewEmployee(empId) {
+  const emp = MOCK_EMPLOYEES.find(e=>e['Employee ID']===empId);
+  if (!emp) return Toast.e('Employee not found');
+  currentViewEmployee = emp;
+
+  const init  = getInitials(emp['FULL NAME (As per NID)']);
+  const color = getAvatarColor(emp['DEPARTMENT']);
+  const status= emp['Status'] || 'Active';
+
+  // Header
+  document.getElementById('view-profile-hd').innerHTML = `
+    <div class="emp-profile-avatar" style="background:${color}22;color:${color};border:1px solid ${color}33">${init}</div>
+    <div>
+      <div class="ep-name">${emp['FULL NAME (As per NID)']}</div>
+      <div class="ep-desig">${emp['DESIGNATION']} ${emp['Nickname']?'· "'+emp['Nickname']+'"':''}</div>
+      <div class="ep-badges">
+        <span class="ep-badge dept">${emp['DEPARTMENT']}</span>
+        <span class="ep-badge status">${status}</span>
+        <span class="ep-badge emp-type">${emp['Employment type']||'Full-Time'}</span>
+        <span class="ep-badge" style="background:rgba(0,212,255,0.08);color:var(--cyan)">${emp['Employee ID']}</span>
+      </div>
+    </div>`;
+
+  // Reset tabs
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ptab-panel').forEach(p=>{p.classList.remove('active');p.innerHTML='';});
+  document.querySelector('.ptab').classList.add('active');
+
+  // Personal tab
+  document.getElementById('pt-personal').innerHTML = `
+    <div class="info-section">
+      <div class="is-title">Personal Information</div>
+      <div class="info-grid">
+        ${ii('Full Name',emp['FULL NAME (As per NID)'])} ${ii('NID Number',emp['NID NUMBER'],'mono')}
+        ${ii('Date of Birth',formatDate(emp['DATE OF BIRTH']))} ${ii('Gender',emp['Gender'])}
+        ${ii('Blood Group',emp['BLOOD GROUP'])} ${ii('Religion',emp['Religion'])}
+        ${ii('Marital Status',emp['Marital status'])} ${ii('TIN',emp['TIN'],'mono')}
+        ${ii("Father's Name",emp["FATHER'S NAME"])} ${ii("Mother's Name",emp["MOTHER'S NAME"])}
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="is-title">Address</div>
+      <div class="info-grid">
+        ${ii('Permanent Address',emp['PERMANENT ADDRESS (According to NID)'])}
+        ${ii('Present Address',emp['PRESENT ADDRESS'])}
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="is-title">Contact</div>
+      <div class="info-grid">
+        ${ii('Personal Mobile',emp['MOBILE NUMBER (Personal)'],'mono')}
+        ${ii('Official Phone',emp['Official Phone number'],'mono')}
+        ${ii('Personal Email',emp['E-MAIL ID'])} ${ii('Official Email',emp['Email Address'])}
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="is-title">Emergency Contacts</div>
+      <div class="info-grid">
+        ${ii('Contact 1',emp['EMERGENCY CONTACT NAME 1'])} ${ii('Relation',emp['RELATION WITH 1'])}
+        ${ii('Phone 1',emp['EMERGENCY CONTACT NUMBER'],'mono')}
+        ${ii('Contact 2',emp['EMERGENCY CONTACT NAME 2']||'—')} ${ii('Relation 2',emp['RELATION WITH 2']||'—')}
+        ${ii('Phone 2',emp['EMERGENCY CONTACT NUMBER 2']||'—','mono')}
+      </div>
+    </div>`;
+
+  // Job tab
+  document.getElementById('pt-job').innerHTML = `
+    <div class="info-section">
+      <div class="is-title">Employment Details</div>
+      <div class="info-grid three">
+        ${ii('Employee ID',emp['Employee ID'],'mono')} ${ii('Designation',emp['DESIGNATION'])}
+        ${ii('Department',emp['DEPARTMENT'])} ${ii('Line Manager',emp['LINE MANAGER NAME'])}
+        ${ii('Joining Date',formatDate(emp['JOINING DATE']))} ${ii('Tenure',emp['Employee Tenure'])}
+        ${ii('Probation End',formatDate(emp['Probation End Date']))} ${ii('Shift',emp['Shift Preference'])}
+        ${ii('Employment Type',emp['Employment type'])} ${ii('Classification',emp['Classifications'])}
+        ${ii('Status',emp['Status'])} ${ii('Assets',emp['Assets Assigned'])}
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="is-title">Salary & Increments</div>
+      <div class="info-grid">
+        ${ii('Joining Salary','৳'+Number(emp['Joining Salary']||0).toLocaleString())}
+        ${ii('Last Increment',emp['LAST INCREMENT AT VAULT']||'—')}
+        ${ii('Awards',emp['AWARD RECOGNITION']||'—')} ${ii('Reference',emp['References Name (if any)']||'—')}
+      </div>
+    </div>
+    ${emp['Warning/Disciplinary Ledger']?`
+    <div class="info-section">
+      <div class="is-title" style="color:var(--amber)">⚠️ Disciplinary Record</div>
+      <div style="background:rgba(255,179,0,0.06);border:1px solid rgba(255,179,0,0.2);
+        border-radius:var(--r-xs);padding:12px;font-size:12.5px;color:var(--text2);line-height:1.6">
+        ${emp['Warning/Disciplinary Ledger']}
+      </div>
+    </div>`:''}
+    ${emp['Status']==='Inactive'?`
+    <div class="info-section">
+      <div class="is-title" style="color:var(--rose)">🚪 Exit Information</div>
+      <div class="info-grid">
+        ${ii('Last Working Day',formatDate(emp['Termination Date (LWD)']))}
+        ${ii('Reason',emp['Ref OF termination'])}
+      </div>
+    </div>`:''}`;
+
+  // Finance tab
+  document.getElementById('pt-finance').innerHTML = `
+    <div class="info-section">
+      <div class="is-title">Banking Details</div>
+      <div class="info-grid">
+        ${ii('Bank Name',emp['BANK NAME'])} ${ii('Account Holder',emp['ACCOUNT HOLDER NAME'])}
+        ${ii('Account Number',emp['BANK ACCOUNT NUMBER'],'mono')} ${ii('Routing Number',emp['ROUTING NUMBER'],'mono')}
+        ${ii('bKash',emp['MFS-Bkash'],'mono')} ${ii('Nagad',emp['MFS-Nagad'],'mono')}
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="is-title">Social Links</div>
+      <div class="info-grid">
+        ${emp['linkedin id (Link)']?`<div class="info-item"><div class="ii-label">LinkedIn</div><a href="${emp['linkedin id (Link)']}" target="_blank" class="doc-link">🔗 LinkedIn Profile</a></div>`:''}
+        ${emp['Facebook ID (link)']?`<div class="info-item"><div class="ii-label">Facebook</div><a href="${emp['Facebook ID (link)']}" target="_blank" class="doc-link">🔗 Facebook Profile</a></div>`:''}
+      </div>
+    </div>`;
+
+  // Education tab
+  document.getElementById('pt-education').innerHTML = `
+    <div class="info-section">
+      <div class="is-title">Educational Background</div>
+      ${[1,2,3].map(n=>{
+        const deg=emp[`EDUCATIONAL DEGREE ${n}`]; if(!deg) return '';
+        return `<div style="background:var(--elevated);border-radius:var(--r-xs);padding:12px 14px;margin-bottom:10px;border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${deg}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:3px">${emp[`SUBJECT ${n}`]||''} · ${emp[`INSTITUTION ${n}`]||''}</div>
+        </div>`;
+      }).join('')}
+      ${emp['Special Degree']?`<div class="info-item" style="margin-top:10px">${ii('Special Degree / Certification',emp['Special Degree'])}</div>`:''}
+    </div>
+    <div class="info-section">
+      <div class="is-title">Skills & Previous Employment</div>
+      <div class="info-grid">
+        ${ii('Top 3 Skills',emp['TOP 3 SKILLS'])}
+        ${ii('Last Employer',emp['LAST EMPLOYMENT COMPANY NAME']||'—')}
+        ${ii('Last Tenure',emp['LAST EMPLOYMENT TENURE']||'—')}
+        ${ii('Last Designation',emp['LAST EMPLOYMENT DESIGNATION']||'—')}
+      </div>
+    </div>`;
+
+  // Docs tab
+  document.getElementById('pt-docs').innerHTML = `
+    <div class="info-section">
+      <div class="is-title">Uploaded Documents</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${docLink('📸 Passport Photo',emp['Passport Size Picture (Drive Link)'])}
+        ${docLink('📄 CV / Resume',emp['CV (Drive Link)'])}
+        ${docLink('🗂️ All Documents',emp['All documents (Drive Link)'])}
+      </div>
+    </div>`;
+
+  document.getElementById('view-edit-btn').onclick = ()=>{ closeViewModal(); editEmployee(empId); };
+  document.getElementById('view-overlay').classList.add('open');
+}
+
+function ii(label, value, cls='') {
+  const isEmpty = !value || value.toString().trim() === '';
+  return `<div class="info-item">
+    <div class="ii-label">${label}</div>
+    <div class="ii-value ${cls} ${isEmpty?'empty':''}">${isEmpty?'Not provided':value}</div>
+  </div>`;
+}
+
+function docLink(label, url) {
+  if (!url) return `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+    background:var(--elevated);border-radius:var(--r-xs);border:1px solid var(--border)">
+    <span style="font-size:18px;opacity:.4">📎</span>
+    <div><div style="font-size:12.5px;font-weight:600;color:var(--text)">${label}</div>
+    <div style="font-size:11px;color:var(--text3)">Not uploaded</div></div></div>`;
+  return `<a href="${url}" target="_blank" class="doc-link" style="padding:12px 16px">
+    <span style="font-size:18px">${label.split(' ')[0]}</span>
+    <div><div style="font-size:12.5px;font-weight:600">${label}</div>
+    <div style="font-size:10.5px;color:var(--text3)">Click to open in Drive</div></div>
+    <span style="margin-left:auto;font-size:12px;color:var(--cyan)">→</span></a>`;
+}
+
+function switchPTab(el, panelId) {
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ptab-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+function closeViewModal() {
+  document.getElementById('view-overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  WIZARD
+// ═══════════════════════════════════════════════════════════════
+function openWizard(emp=null) {
+  editingEmpId = emp ? emp['Employee ID'] : null;
+  uploadedFiles = { photo:null, cv:null, documents:null };
+  currentWizardStep = 1;
+
+  document.getElementById('wz-modal-title').textContent = emp ? '✏️ Edit Employee' : '➕ Add New Employee';
+  document.getElementById('wz-modal-sub').textContent = emp
+    ? 'Update employee information across all sections'
+    : 'Complete all 5 steps to onboard a new team member';
+
+  buildWizardTrack();
+  renderWizardStep();
+
+  // Clear or prefill form
+  if (emp) prefillWizard(emp);
+  else clearWizardForm();
+
+  document.getElementById('wizard-overlay').classList.add('open');
+}
+
+function buildWizardTrack() {
+  const track = document.getElementById('step-track');
+  track.innerHTML = WIZARD_STEPS_META.map((s,i)=>
+    `${i>0?'<div class="step-line" id="sl-'+i+'"></div>':''}
+    <div class="step-node">
+      <div class="step-circle ${i===0?'active':''}" id="sc-${i+1}">${i===0?'<span>1</span>':i+1}</div>
+      <div class="step-label ${i===0?'active':''}" id="sl-lbl-${i+1}">${s.label}</div>
+    </div>`
+  ).join('');
+}
+
+function renderWizardStep() {
+  document.querySelectorAll('.wizard-step').forEach(s=>s.classList.remove('active'));
+  document.querySelector(`.wizard-step[data-step="${currentWizardStep}"]`).classList.add('active');
+
+  document.getElementById('wz-step-label').textContent = `Step ${currentWizardStep} of ${TOTAL_WIZARD_STEPS}`;
+  document.getElementById('wz-back-btn').style.display = currentWizardStep > 1 ? '' : 'none';
+  document.getElementById('wz-next-btn').textContent = currentWizardStep === TOTAL_WIZARD_STEPS
+    ? (editingEmpId ? '💾 Save Changes' : '✅ Add Employee')
+    : 'Continue →';
+
+  // Update step track
+  WIZARD_STEPS_META.forEach((_,i)=>{
+    const n = i+1;
+    const circle = document.getElementById(`sc-${n}`);
+    const label  = document.getElementById(`sl-lbl-${n}`);
+    const line   = document.getElementById(`sl-${i}`);
+    if (!circle) return;
+    circle.className = `step-circle ${n<currentWizardStep?'done':n===currentWizardStep?'active':''}`;
+    circle.innerHTML = n < currentWizardStep ? '✓' : `<span>${n}</span>`;
+    label.className  = `step-label ${n<currentWizardStep?'done':n===currentWizardStep?'active':''}`;
+    if (line) line.className = `step-line ${n<=currentWizardStep?'done':''}`;
+  });
+
+  // On step 5 — populate review
+  if (currentWizardStep === 5) buildReviewSummary();
+}
+
+function wizardNext() {
+  if (currentWizardStep === TOTAL_WIZARD_STEPS) { submitWizard(); return; }
+  if (!validateWizardStep()) return;
+  currentWizardStep++;
+  renderWizardStep();
+}
+
+function wizardPrev() {
+  if (currentWizardStep > 1) { currentWizardStep--; renderWizardStep(); }
+}
+
+function validateWizardStep() {
+  let valid = true;
+  const clearErr = id => document.getElementById(id)?.classList.remove('show');
+  const showErr  = id => { document.getElementById(id)?.classList.add('show'); valid=false; };
+  const val      = id => document.getElementById(id)?.value?.trim();
+
+  if (currentWizardStep === 1) {
+    if (!val('f-fullname')) { showErr('fe-fullname'); document.getElementById('f-fullname').classList.add('error'); }
+    else { clearErr('fe-fullname'); document.getElementById('f-fullname').classList.remove('error'); }
+    if (!val('f-empid'))   { showErr('fe-empid');    document.getElementById('f-empid').classList.add('error'); }
+    else { clearErr('fe-empid');    document.getElementById('f-empid').classList.remove('error'); }
+  }
+  if (currentWizardStep === 2) {
+    if (!val('f-desig')) { showErr('fe-desig'); document.getElementById('f-desig').classList.add('error'); }
+    else { clearErr('fe-desig'); document.getElementById('f-desig').classList.remove('error'); }
+    if (!val('f-dept'))  { showErr('fe-dept');  document.getElementById('f-dept').classList.add('error'); }
+    else { clearErr('fe-dept');  document.getElementById('f-dept').classList.remove('error'); }
+    if (!val('f-join'))  { showErr('fe-join');  document.getElementById('f-join').classList.add('error'); }
+    else { clearErr('fe-join');  document.getElementById('f-join').classList.remove('error'); }
+  }
+  if (!valid) Toast.w('Please fill in required fields.');
+  return valid;
+}
+
+function clearWizardForm() {
+  const ids = ['f-fullname','f-nickname','f-empid','f-nid','f-dob','f-gender','f-blood',
+    'f-religion','f-marital','f-father','f-mother','f-tin','f-perm-addr','f-present-addr',
+    'f-desig','f-dept','f-join','f-probation','f-shift','f-emptype','f-class',
+    'f-manager','f-salary','f-increment','f-assets','f-mobile','f-official-phone',
+    'f-email','f-off-email','f-em1name','f-em1rel','f-em1phone','f-em2name','f-em2rel','f-em2phone',
+    'f-deg1','f-sub1','f-inst1','f-deg2','f-sub2','f-inst2','f-deg3','f-sub3','f-inst3',
+    'f-special-deg','f-skills','f-prev-co','f-prev-ten','f-prev-desig','f-prev-dept',
+    'f-bank','f-accholder','f-accno','f-routing','f-bkash','f-nagad',
+    'f-linkedin','f-facebook','f-ref','f-award','f-warning'];
+  ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('f-status').value='Active';
+}
+
+function prefillWizard(emp) {
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+  set('f-fullname',emp['FULL NAME (As per NID)']); set('f-nickname',emp['Nickname']);
+  set('f-empid',emp['Employee ID']); set('f-nid',emp['NID NUMBER']); set('f-dob',emp['DATE OF BIRTH']);
+  set('f-gender',emp['Gender']); set('f-blood',emp['BLOOD GROUP']); set('f-religion',emp['Religion']);
+  set('f-marital',emp['Marital status']); set('f-father',emp["FATHER'S NAME"]); set('f-mother',emp["MOTHER'S NAME"]);
+  set('f-tin',emp['TIN']); set('f-perm-addr',emp['PERMANENT ADDRESS (According to NID)']); set('f-present-addr',emp['PRESENT ADDRESS']);
+  set('f-desig',emp['DESIGNATION']); set('f-dept',emp['DEPARTMENT']); set('f-join',emp['JOINING DATE']);
+  set('f-probation',emp['Probation End Date']); set('f-shift',emp['Shift Preference']);
+  set('f-emptype',emp['Employment type']); set('f-class',emp['Classifications']); set('f-status',emp['Status']);
+  set('f-manager',emp['LINE MANAGER NAME']); set('f-salary',emp['Joining Salary']);
+  set('f-increment',emp['LAST INCREMENT AT VAULT']); set('f-assets',emp['Assets Assigned']);
+  set('f-mobile',emp['MOBILE NUMBER (Personal)']); set('f-official-phone',emp['Official Phone number']);
+  set('f-email',emp['E-MAIL ID']); set('f-off-email',emp['Email Address']);
+  set('f-em1name',emp['EMERGENCY CONTACT NAME 1']); set('f-em1rel',emp['RELATION WITH 1']); set('f-em1phone',emp['EMERGENCY CONTACT NUMBER']);
+  set('f-em2name',emp['EMERGENCY CONTACT NAME 2']); set('f-em2rel',emp['RELATION WITH 2']); set('f-em2phone',emp['EMERGENCY CONTACT NUMBER 2']);
+  set('f-deg1',emp['EDUCATIONAL DEGREE 1']); set('f-sub1',emp['SUBJECT 1']); set('f-inst1',emp['INSTITUTION 1']);
+  set('f-deg2',emp['EDUCATIONAL DEGREE 2']); set('f-sub2',emp['SUBJECT 2']); set('f-inst2',emp['INSTITUTION 2']);
+  set('f-deg3',emp['EDUCATIONAL DEGREE 3']); set('f-sub3',emp['SUBJECT 3']); set('f-inst3',emp['INSTITUTION 3']);
+  set('f-special-deg',emp['Special Degree']); set('f-skills',emp['TOP 3 SKILLS']);
+  set('f-prev-co',emp['LAST EMPLOYMENT COMPANY NAME']); set('f-prev-ten',emp['LAST EMPLOYMENT TENURE']);
+  set('f-prev-desig',emp['LAST EMPLOYMENT DESIGNATION']); set('f-prev-dept',emp['LAST EMPLOYMENT DEPARTMENT']);
+  set('f-bank',emp['BANK NAME']); set('f-accholder',emp['ACCOUNT HOLDER NAME']);
+  set('f-accno',emp['BANK ACCOUNT NUMBER']); set('f-routing',emp['ROUTING NUMBER']);
+  set('f-bkash',emp['MFS-Bkash']); set('f-nagad',emp['MFS-Nagad']);
+  set('f-linkedin',emp['linkedin id (Link)']); set('f-facebook',emp['Facebook ID (link)']);
+  set('f-ref',emp['References Name (if any)']); set('f-award',emp['AWARD RECOGNITION']);
+  set('f-warning',emp['Warning/Disciplinary Ledger']);
+}
+
+function buildReviewSummary() {
+  const g = id => document.getElementById(id)?.value?.trim() || '—';
+  document.getElementById('review-summary').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px">
+      <div><strong style="color:var(--cyan)">Full Name:</strong> ${g('f-fullname')}</div>
+      <div><strong style="color:var(--cyan)">Employee ID:</strong> ${g('f-empid')}</div>
+      <div><strong style="color:var(--cyan)">Designation:</strong> ${g('f-desig')}</div>
+      <div><strong style="color:var(--cyan)">Department:</strong> ${g('f-dept')}</div>
+      <div><strong style="color:var(--cyan)">Joining Date:</strong> ${g('f-join')}</div>
+      <div><strong style="color:var(--cyan)">Status:</strong> ${g('f-status')}</div>
+      <div><strong style="color:var(--cyan)">Mobile:</strong> ${g('f-mobile')}</div>
+      <div><strong style="color:var(--cyan)">Salary:</strong> ৳${g('f-salary')}</div>
+      <div><strong style="color:var(--cyan)">Employment Type:</strong> ${g('f-emptype')}</div>
+      <div><strong style="color:var(--cyan)">Bank:</strong> ${g('f-bank')}</div>
+    </div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--text3)">
+      📎 Photo: ${uploadedFiles.photo?'✅ Ready':'Not uploaded'} &nbsp;|&nbsp;
+      CV: ${uploadedFiles.cv?'✅ Ready':'Not uploaded'} &nbsp;|&nbsp;
+      Docs: ${uploadedFiles.documents?'✅ Ready':'Not uploaded'}
+    </div>`;
+}
+
+function buildEmployeePayload() {
+  const g = id => document.getElementById(id)?.value?.trim() || '';
+  const join = g('f-join');
+  let tenure = '';
+  if (join) {
+    const months = Math.floor((Date.now()-new Date(join))/(30.44*24*3600*1000));
+    const y=Math.floor(months/12), m=months%12;
+    tenure = y>0 ? `${y}y ${m}m` : `${m}m`;
+  }
+  return {
+    'Date': new Date().toISOString().split('T')[0],
+    'FULL NAME (As per NID)': g('f-fullname'),
+    'Employee ID': g('f-empid'),
+    'DESIGNATION': g('f-desig'),
+    'JOINING DATE': join,
+    'Employee Tenure': tenure,
+    'Shift Preference': g('f-shift'),
+    'Probation End Date': g('f-probation'),
+    'NID NUMBER': g('f-nid'),
+    "FATHER'S NAME": g('f-father'),
+    "MOTHER'S NAME": g('f-mother'),
+    'DATE OF BIRTH': g('f-dob'),
+    'Marital status': g('f-marital'),
+    'E-MAIL ID': g('f-email'),
+    'Email Address': g('f-off-email'),
+    'MOBILE NUMBER (Personal)': g('f-mobile'),
+    'Official Phone number': g('f-official-phone'),
+    'PERMANENT ADDRESS (According to NID)': g('f-perm-addr'),
+    'PRESENT ADDRESS': g('f-present-addr'),
+    'BLOOD GROUP': g('f-blood'),
+    'Religion': g('f-religion'),
+    'Gender': g('f-gender'),
+    'DEPARTMENT': g('f-dept'),
+    'LINE MANAGER NAME': g('f-manager'),
+    'EMERGENCY CONTACT NAME 1': g('f-em1name'),
+    'RELATION WITH 1': g('f-em1rel'),
+    'EMERGENCY CONTACT NUMBER': g('f-em1phone'),
+    'EMERGENCY CONTACT NAME 2': g('f-em2name'),
+    'RELATION WITH 2': g('f-em2rel'),
+    'EMERGENCY CONTACT NUMBER 2': g('f-em2phone'),
+    'linkedin id (Link)': g('f-linkedin'),
+    'Facebook ID (link)': g('f-facebook'),
+    'TOP 3 SKILLS': g('f-skills'),
+    'TIN': g('f-tin'),
+    'BANK NAME': g('f-bank'),
+    'ACCOUNT HOLDER NAME': g('f-accholder'),
+    'BANK ACCOUNT NUMBER': g('f-accno'),
+    'ROUTING NUMBER': g('f-routing'),
+    'MFS-Nagad': g('f-nagad'),
+    'MFS-Bkash': g('f-bkash'),
+    'AWARD RECOGNITION': g('f-award'),
+    'Special Degree': g('f-special-deg'),
+    'EDUCATIONAL DEGREE 1': g('f-deg1'),
+    'SUBJECT 1': g('f-sub1'),
+    'INSTITUTION 1': g('f-inst1'),
+    'EDUCATIONAL DEGREE 2': g('f-deg2'),
+    'SUBJECT 2': g('f-sub2'),
+    'INSTITUTION 2': g('f-inst2'),
+    'EDUCATIONAL DEGREE 3': g('f-deg3'),
+    'SUBJECT 3': g('f-sub3'),
+    'INSTITUTION 3': g('f-inst3'),
+    'LAST EMPLOYMENT COMPANY NAME': g('f-prev-co'),
+    'LAST EMPLOYMENT TENURE': g('f-prev-ten'),
+    'LAST EMPLOYMENT DESIGNATION': g('f-prev-desig'),
+    'LAST EMPLOYMENT DEPARTMENT': g('f-prev-dept'),
+    'LAST INCREMENT AT VAULT': g('f-increment'),
+    'References Name (if any)': g('f-ref'),
+    'Joining Salary': g('f-salary'),
+    'Nickname': g('f-nickname'),
+    'Status': g('f-status'),
+    'Classifications': g('f-class'),
+    'Employment type': g('f-emptype'),
+    'Assets Assigned': g('f-assets'),
+    'Warning/Disciplinary Ledger': g('f-warning'),
+    'Termination Date (LWD)': '',
+    'Ref OF termination': '',
+    'Passport Size Picture (Drive Link)': uploadedFiles.photo?.url || '',
+    'CV (Drive Link)': uploadedFiles.cv?.url || '',
+    'All documents (Drive Link)': uploadedFiles.documents?.url || ''
+  };
+}
+
+async function submitWizard() {
+  const btn = document.getElementById('wz-next-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+
+  try {
+    const employeeData = buildEmployeePayload();
+    let res;
+    if (editingEmpId) {
+      res = await API.call('updateEmployee', { empId:editingEmpId, employeeData, role:'Admin' });
+    } else {
+      res = await API.call('addEmployee', { employeeData, role:'Admin' });
+    }
+    if (!res.success) throw new Error(res.message);
+    Toast.s(res.message);
+    closeWizard();
+    loadEmployees();
+  } catch(err) {
+    Toast.e(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingEmpId ? '💾 Save Changes' : '✅ Add Employee';
+  }
+}
+
+function closeWizard() {
+  document.getElementById('wizard-overlay').classList.remove('open');
+}
+
+function editEmployee(empId) {
+  const emp = MOCK_EMPLOYEES.find(e=>e['Employee ID']===empId);
+  if (!emp) return Toast.e('Employee not found');
+  openWizard(emp);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FILE UPLOAD
+// ═══════════════════════════════════════════════════════════════
+function handleDrag(e, zoneId) { e.preventDefault(); document.getElementById(zoneId).classList.add('drag'); }
+function handleDragLeave(e, zoneId) { document.getElementById(zoneId).classList.remove('drag'); }
+
+async function handleFileSelect(e, fileType, zoneId) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const maxMB = { photo:2, cv:5, documents:10 }[fileType];
+  if (file.size > maxMB*1024*1024) { Toast.w(`File too large. Max ${maxMB}MB.`); return; }
+
+  document.getElementById(zoneId).classList.remove('drag');
+  const progBar = document.getElementById(`up-${fileType==='documents'?'docs':fileType}`);
+  const progFill= document.getElementById(`upb-${fileType==='documents'?'docs':fileType}`);
+  const doneLink= document.getElementById(`udl-${fileType==='documents'?'docs':fileType}`);
+  const doneA   = document.getElementById(`uda-${fileType==='documents'?'docs':fileType}`);
+
+  progBar.classList.add('show');
+  let prog = 0;
+  const ticker = setInterval(()=>{
+    prog = Math.min(prog+15, 85);
+    progFill.style.width = prog+'%';
+  }, 120);
+
+  try {
+    const b64 = await fileToBase64(file);
+    const empId = document.getElementById('f-empid')?.value?.trim() || 'NEW';
+    const res = await API.call('uploadFile',{
+      empId, fileType, fileName:file.name, mimeType:file.type, base64Data:b64, role:'Admin'
+    });
+    clearInterval(ticker);
+    progFill.style.width = '100%';
+    if (res.success) {
+      uploadedFiles[fileType] = { url: res.fileUrl, name: file.name };
+      doneA.href = res.fileUrl;
+      doneLink.classList.add('show');
+      Toast.s(`${file.name} uploaded ✅`);
+    } else throw new Error(res.message);
+  } catch(err) {
+    clearInterval(ticker); progFill.style.width='100%'; progFill.style.background=var_css('--rose');
+    Toast.e('Upload failed: ' + err.message);
+  }
+  setTimeout(()=>{ progBar.classList.remove('show'); progFill.style.width='0%'; progFill.style.background=''; }, 1500);
+}
+
+function fileToBase64(file) {
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload  = ()=>res(r.result.split(',')[1]);
+    r.onerror = ()=>rej(new Error('Read failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+function var_css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
+
+// ═══════════════════════════════════════════════════════════════
+//  CONFIRM / DEACTIVATE
+// ═══════════════════════════════════════════════════════════════
+function confirmDeactivate(empId) {
+  const emp = MOCK_EMPLOYEES.find(e=>e['Employee ID']===empId);
+  if (!emp) return;
+  document.getElementById('confirm-title').textContent = 'Deactivate Employee?';
+  document.getElementById('confirm-msg').innerHTML =
+    `Are you sure you want to deactivate <strong>${emp['FULL NAME (As per NID)']}</strong> (${empId})?<br/>
+    <span style="color:var(--amber);font-size:12px">Their record will be kept but marked as Inactive.</span>`;
+  confirmCallback = async ()=>{
+    try {
+      const res = await API.call('deleteEmployee',{ empId, role:'Admin', reason:'Deactivated by Admin' });
+      if (!res.success) throw new Error(res.message);
+      Toast.s('Employee deactivated.'); loadEmployees();
+    } catch(err) { Toast.e(err.message); }
+  };
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+document.getElementById('confirm-ok-btn').onclick = ()=>{
+  closeConfirm();
+  if (confirmCallback) confirmCallback();
+};
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════════════
+//  AUTO-FILL NEXT EMP ID
+// ═══════════════════════════════════════════════════════════════
+async function loadNextId() {
+  try {
+    const res = await API.call('getNextEmpId');
+    if (res.success) {
+      document.getElementById('f-empid').value = res.nextId;
+      Toast.i(`Next ID: ${res.nextId}`);
+    }
+  } catch(err) { Toast.e(err.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CSV EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportCSV() {
+  if (!MOCK_EMPLOYEES.length) return Toast.w('No data to export.');
+  const keys = Object.keys(MOCK_EMPLOYEES[0]);
+  const csv  = [keys.join(','), ...MOCK_EMPLOYEES.map(emp=>
+    keys.map(k=>`"${(emp[k]||'').toString().replace(/"/g,'""')}"`).join(',')
+  )].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=`HRMIS_Employees_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  Toast.s('CSV exported ✅');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CLOCK + BOOT
+// ═══════════════════════════════════════════════════════════════
+function tick() {
+  const n = new Date();
+  document.getElementById('sb-clock').textContent = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('sb-date').textContent  = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+setInterval(tick, 1000); tick();
+
+// Boot
+loadEmployees();
+</script>
+</body>
+</html>
